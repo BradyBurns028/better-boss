@@ -1,0 +1,8 @@
+.env
+
+backend/.env
+backend/vendor
+
+frontend/.env
+frontend/.nuxt
+frontend/node_modules

@@ -1,0 +1,55 @@
+services:
+  database:
+    container_name: "${APP_NAME}_database"
+    extends:
+      file: ./backend/docker-compose.yaml
+      service: database
+    volumes:
+      - ./data/:/var/lib/postgresql/data
+    networks:
+      - webnet
+
+  pgadmin:
+    container_name: "${APP_NAME}_pgadmin"
+    extends:
+      file: ./backend/docker-compose.yaml
+      service: pgadmin
+    networks:
+      - webnet
+
+  backend:
+    container_name: "${APP_NAME}_backend"
+    extends:
+      file: ./backend/docker-compose.yaml
+      service: backend
+    networks:
+      - webnet
+
+  frontend:
+    container_name: "${APP_NAME}_frontend"
+    extends:
+      file: ./frontend/docker-compose.yaml
+      service: frontend
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - APP_URL=${APP_URL}
+    networks:
+      - webnet
+
+  web:
+    container_name: "${APP_NAME}_web"
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - webnet
+    depends_on:
+      - database
+      - backend
+      - frontend
+
+networks:
+  webnet:
+    driver: bridge
