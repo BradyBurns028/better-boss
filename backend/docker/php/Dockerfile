@@ -1,6 +1,10 @@
 FROM php:8.2-fpm
 
-WORKDIR /var/www/backend
+ARG user
+ARG uid
+ARG working_dir
+
+WORKDIR ${working_dir}
 
 # Install system deps
 RUN apt-get update && apt-get install -y \
@@ -8,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    supervisor \
     zip \
     curl \
     unzip \
@@ -18,9 +23,17 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 
 # Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-COPY . /var/www/backend
+RUN groupadd -g ${uid} ${user} 2>/dev/null || true && \
+    id -u ${user} >/dev/null 2>&1 || useradd -m -u ${uid} -g ${user} -s /bin/bash ${user}
+
+RUN sed -ri "s|^user = .*$|user = ${user}|; s|^group = .*$|group = ${user}|" /usr/local/etc/php-fpm.d/www.conf
+
+COPY . ${working_dir}
+
+# Copy Supervisor configuration
+COPY docker/php/supervisor/supervisord.conf /etc/supervisord.conf
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader && \
@@ -34,4 +47,4 @@ RUN chown -R www-data:www-data /var/www/backend/storage /var/www/backend/bootstr
 # Expose default PHP-FPM port (not HTTP)
 EXPOSE 9000
 
-CMD ["php-fpm"]
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]

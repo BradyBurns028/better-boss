@@ -17,7 +17,11 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/php/Dockerfile
+      args:
+        user: app
+        uid: 1000
+        working_dir: /var/www/backend
     ports:
       - "8000:8000"
     volumes:
