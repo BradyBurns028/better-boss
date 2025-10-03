@@ -27,7 +27,7 @@ return new /**
         Schema::create('organizations', function (Blueprint $table) {
             $table->id(); // Primary key
             $table->string('name'); // Organization name
-            $table->foreignId('admin_id')->constrained('admin'); // Foreign key to 'admins' table
+            $table->foreignId('admin_id')->constrained('admins'); // Foreign key to 'admins' table
             $table->foreignId('owner_id')->nullable()->constrained('users'); // Nullable foreign key to 'users' table
             $table->string('address'); // Organization address
             $table->timestamps(); // Timestamps for created_at and updated_at
@@ -57,7 +57,7 @@ return new /**
             $table->id(); // Primary key
             $table->string('name'); // Degree program name
             $table->foreignId('department_id')->constrained('departments'); // Foreign key to 'departments' table
-            $table->foreignId('program_chair')->constrained('faculty'); // Foreign key to 'faculties' table
+            $table->foreignId('program_chair')->constrained('faculties'); // Foreign key to 'faculties' table
             $table->timestamps(); // Timestamps for created_at and updated_at
         });
 
@@ -65,9 +65,9 @@ return new /**
         Schema::create('students', function (Blueprint $table) {
             $table->id(); // Primary key
             $table->timestamps(); // Timestamps for created_at and updated_at
-            $table->ForeignId('degree_program')->constrained('degree_program'); // Foreign key to 'degree_programs' table
+            $table->ForeignId('degree_program')->constrained('degree_programs'); // Foreign key to 'degree_programs' table
             $table->ForeignId('user_id')->constrained('users'); // Foreign key to 'users' table
-            $table->ForeignId('faculty_id')->constrained('faculty'); // Foreign key to 'faculties' table
+            $table->ForeignId('faculty_id')->constrained('faculties'); // Foreign key to 'faculties' table
         });
 
         // Add a foreign key to the 'faculties' table for the 'departments' table
@@ -77,7 +77,7 @@ return new /**
 
         // Add a foreign key to the 'departments' table for the department chair in the 'faculties' table
         Schema::table('departments', function (Blueprint $table) {
-            $table->foreignId('department_chair')->constrained('faculty'); // Foreign key to 'faculties' table
+            $table->foreignId('department_chair')->constrained('faculties'); // Foreign key to 'faculties' table
         });
     }
 
