@@ -9,6 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      * This method creates the `users`, `password_reset_tokens`, and `sessions` tables.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -46,6 +48,8 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      * This method drops the `users`, `password_reset_tokens`, and `sessions` tables.
+     *
+     * @return void
      */
     public function down(): void
     {

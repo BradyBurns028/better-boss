@@ -11,6 +11,8 @@ return new /**
     /**
      * Run the migrations.
      * This method creates the necessary tables for the user types and their relationships.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -82,6 +84,8 @@ return new /**
     /**
      * Reverse the migrations.
      * This method drops the tables and columns created in the `up` method.
+     *
+     * @return void
      */
     public function down(): void
     {
