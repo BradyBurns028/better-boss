@@ -36,7 +36,7 @@ COPY . ${working_dir}
 COPY docker/php/supervisor/supervisord.conf /etc/supervisord.conf
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader && \
+RUN composer install --optimize-autoloader && \
     php artisan key:generate && \
     php artisan config:clear && \
     php artisan config:cache
