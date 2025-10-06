@@ -86,7 +86,7 @@ Represents faculty members (professors, instructors, school administrators, etc.
 - Belongs to a `Department`
 - May have (advise) many `Students` (but not required)
 
-> **Note:** `role_type` is currently a string but should be treated as an enum
+> **Note:** `role_type` is currently a string but should be treated as an `FacultyRoleTypeEnum`
 
 > **Note:** Every `Student` belongs to a `Faculty`, but not every `Faculty` has a `Student`.
 
