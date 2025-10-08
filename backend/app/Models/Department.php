@@ -6,7 +6,7 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -44,9 +44,9 @@ class Department extends Model
 		return $this->belongsTo(Organization::class);
 	}
 
-	public function faculty(): BelongsTo
+	public function faculty(): HasOne
 	{
-		return $this->belongsTo(Faculty::class, 'department_chair');
+		return $this->hasOne(Faculty::class, 'department_chair');
 	}
 
 	public function degree_programs(): HasMany

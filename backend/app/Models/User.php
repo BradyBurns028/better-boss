@@ -50,23 +50,23 @@ class User extends Model
 		'remember_token'
 	];
 
-	public function admins(): HasMany
+	public function admins(): HasOne
 	{
-		return $this->hasMany(Admin::class);
+		return $this->hasOne(Admin::class);
 	}
 
-	public function organizations(): HasMany
+	public function organizations(): HasOne
 	{
-		return $this->hasMany(Organization::class, 'owner_id');
+		return $this->hasOne(Organization::class, 'owner_id');
 	}
 
-	public function students(): HasMany
+	public function students(): HasOne
 	{
-		return $this->hasMany(Student::class);
+		return $this->hasOne(Student::class);
 	}
 
-	public function faculties(): HasMany
+	public function faculties(): HasOne
 	{
-		return $this->hasMany(Faculty::class);
+		return $this->hasOne(Faculty::class);
 	}
 }
