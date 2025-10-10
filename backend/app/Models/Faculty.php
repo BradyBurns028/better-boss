@@ -49,12 +49,12 @@ class Faculty extends Model
 		return $this->belongsTo(Department::class);
 	}
 
-	public function degree_programs(): HasOne
+	public function degreePrograms(): HasMany
 	{
-		return $this->hasOne(DegreeProgram::class, 'program_chair');
+		return $this->hasMany(DegreeProgram::class, 'program_chair');
 	}
 
-	public function students(): HasMany
+	public function advisees(): HasMany
 	{
 		return $this->hasMany(Student::class);
 	}

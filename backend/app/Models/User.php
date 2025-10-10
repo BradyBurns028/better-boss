@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\User as Authenticatable
 
 /**
  * Class User
@@ -32,9 +33,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @package App\Models
  */
-class User extends Model
+class User extends Authenticatable
 {
 	use SoftDeletes;
+	use HasApiTokens
+	use Notifiable
 
 	protected $hidden = [
 		'password',

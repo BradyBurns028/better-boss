@@ -33,7 +33,7 @@ class Student extends Model
 		'faculty_id'
 	];
 
-	public function degree_program(): BelongsTo
+	public function degreeProgram(): BelongsTo
 	{
 		return $this->belongsTo(DegreeProgram::class, 'degree_program');
 	}

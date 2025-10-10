@@ -44,9 +44,9 @@ class Department extends Model
 		return $this->belongsTo(Organization::class);
 	}
 
-	public function faculty(): HasOne
+	public function departmentChair(): BelongsTo
 	{
-		return $this->hasOne(Faculty::class, 'department_chair');
+		return $this->belongsTo(Faculty::class, 'department_chair');
 	}
 
 	public function degree_programs(): HasMany
@@ -54,7 +54,7 @@ class Department extends Model
 		return $this->hasMany(DegreeProgram::class);
 	}
 
-	public function faculties(): HasMany
+	public function faculty(): HasMany
 	{
 		return $this->hasMany(Faculty::class);
 	}
