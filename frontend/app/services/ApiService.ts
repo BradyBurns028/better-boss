@@ -5,20 +5,19 @@ export interface PaginationMeta {
     last_page: number
 }
 
-export interface ApiSuccessResponse<T> {
-    success: true
-    message: string
+export type ApiResponse<T> = {
+    success: boolean
     data: T
-    pagination?: PaginationMeta
+    meta: PaginationMeta
+    info: {
+        status_code: number
+        error?: {
+            code: string
+            message: string
+            details: object
+        }
+    }
 }
-
-export interface ApiErrorResponse {
-    success: false
-    message: string
-    errors?: any[]
-}
-
-export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse
 
 const getAuthToken = (): string | null =>
     typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
@@ -39,31 +38,24 @@ export const apiService = {
         body?: any,
         params?: Record<string, any>
     ): Promise<ApiResponse<T>> => {
-        try {
-            return await $fetch(`/api/${endpoint}`, {
-                method,
-                body,
-                params,
-                headers: getHeaders(body instanceof FormData),
-            })
-        } catch (e: any) {
-            console.error(`[API ${method} ${endpoint}]`, e)
-            return {
-                success: false,
-                message: e?.message || 'Network error',
-            }
-        }
+        // @ts-ignore
+        return await $fetch(`/api/${endpoint}`, {
+            method,
+            body,
+            params,
+            headers: getHeaders(body instanceof FormData),
+        })
     },
 
-    get: <T>(endpoint: string, params?: Record<string, any>) =>
+    get: <T>(endpoint: string, params?: Record<string, any>): Promise<ApiResponse<T>> =>
         apiService.request<T>('GET', endpoint, undefined, params),
 
-    post: <T>(endpoint: string, body: any, params?: Record<string, any>) =>
+    post: <T>(endpoint: string, body: any, params?: Record<string, any>): Promise<ApiResponse<T>> =>
         apiService.request<T>('POST', endpoint, body, params),
 
-    put: <T>(endpoint: string, body: any, params?: Record<string, any>) =>
+    put: <T>(endpoint: string, body: any, params?: Record<string, any>): Promise<ApiResponse<T>> =>
         apiService.request<T>('PUT', endpoint, body, params),
 
-    delete: <T>(endpoint: string, params?: Record<string, any>) =>
+    delete: <T>(endpoint: string, params?: Record<string, any>): Promise<ApiResponse<T>> =>
         apiService.request<T>('DELETE', endpoint, undefined, params),
 }
