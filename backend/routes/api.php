@@ -11,4 +11,6 @@ Route::middleware('auth:sanctum')->get('/users', function () {
     return User::all();
 });
 
-Route::middleware('auth:sanctum')->get('/', function () {});
+Route::middleware('auth:sanctum')->get('/', function () {
+
+});
