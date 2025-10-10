@@ -1,4 +1,8 @@
-<script lang="ts"></script>
-<template>
-    <div class="text-xl text-red-500 p-4">Hi</div>
-</template>
+<!-- redirect to login page -->
+<script lang="ts">
+export default {
+  mounted() {
+    this.$router.push('/login')
+  }
+}
+</script>

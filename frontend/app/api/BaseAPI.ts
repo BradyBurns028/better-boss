@@ -31,24 +31,7 @@ export abstract class BaseApi<TModel, TFilter extends FilterParams<any> = {}> {
         return result
     }
 
-    /**
-     * Recursively convert object keys to camelCase.
-     */
-    protected transformPayload(obj: any): any {
-        if (Array.isArray(obj)) return obj.map(this.transformPayload.bind(this));
-        if (obj && typeof obj === 'object') {
-            const out: Record<string, any> = {};
-            for (const [k, v] of Object.entries(obj)) {
-                const camel = k.replace(/_([a-z])/g, (_, l) => l.toUpperCase()); // snake → camel
-                out[camel] = this.transformPayload(v);
-            }
-            return out;
-        }
-        return obj;
-    }
-
-
-    protected notify(ok: boolean, title: string, detail: string) {
+    protected notify(ok: boolean, title: string, detail: string|undefined) {
         useNuxtApp().$toast.add({
             severity: ok ? 'success' : 'error',
             summary: title,
@@ -61,12 +44,12 @@ export abstract class BaseApi<TModel, TFilter extends FilterParams<any> = {}> {
         promise: Promise<ApiResponse<T>>,
         opts?: { success?: string; error?: string }
     ): Promise<T | null> {
-        const res = await promise
+        const res: ApiResponse<T> = await promise
         if (!res.success) {
-            if (opts?.error) this.notify(false, opts.error, res.message)
+            if (opts?.error) this.notify(false, opts.error, res.info.error?.message)
             return null
         }
-        if (opts?.success) this.notify(true, opts.success, res.message)
+        if (opts?.success) this.notify(true, opts.success, undefined)
         return res.data
     }
 
@@ -95,17 +78,15 @@ export abstract class BaseApi<TModel, TFilter extends FilterParams<any> = {}> {
     }
 
     async create(data: Partial<TModel>, msg = 'Created') {
-        const payload = this.transformPayload(data)
         return this.unwrap<TModel>(
-            apiService.post(this.resource, payload),
+            apiService.post(this.resource, data),
             { success: `${msg} successfully`, error: `Failed to create ${msg}` }
         )
     }
 
     async update(id: number, data: Partial<TModel>, msg = 'Updated') {
-        const payload = this.transformPayload(data)
         return this.unwrap<TModel>(
-            apiServiceV2.put(`${this.resource}/${id}`, payload),
+            apiService.put(`${this.resource}/${id}`, data),
             { success: `${msg} successfully`, error: `Failed to update ${msg}` }
         )
     }
