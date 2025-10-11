@@ -1,7 +1,7 @@
 import {BaseApi} from "~/api/BaseAPI";
 import {apiService} from '~/services/ApiService'
 
-export type RoleName = 'admin' | 'owner' | 'faculty' | 'student' | string
+export type RoleName = 'admin' | 'owner' | 'faculty' | 'student'
 
 export interface User {
     id: number
@@ -30,22 +30,18 @@ export interface LoginResponse {
  */
 export class AuthenticationApi extends BaseApi<never, {}> {
     constructor() {
-        super('auth')
+        super('')
     }
 
     async login(body: LoginPayload) {
-        // Expected: { success, data: { token, user }, ... }
         return await this.unwrap<LoginResponse>(
-            apiService.post<LoginResponse>(`${this.resource}/login`, body),
-            {success: 'Logged in', error: 'Invalid email or password'}
+            apiService.post<LoginResponse>(`${this.resource}login`, body)
         )
     }
 
     async logout() {
-        // Expected: { success, data: null, ... }
         return this.unwrap<null>(
-            apiService.post<null>(`${this.resource}/logout`, {}),
-            { success: 'Logged out', error: 'Logout failed' }
+            apiService.post<null>(`${this.resource}logout`, {}),
         )
     }
 }
