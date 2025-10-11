@@ -8,11 +8,13 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Enums\UserType;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class User
@@ -37,10 +39,7 @@ use App\Enums\UserType;
  */
 class User extends Authenticatable
 {
-	use SoftDeletes;
-	use HasApiTokens;
-	use Notifiable;
-    use HasRoles;
+	use SoftDeletes, HasApiTokens, Notifiable, HasRoles;
 
 	protected $hidden = [
 		'password',
@@ -52,7 +51,7 @@ class User extends Authenticatable
 		'last_name',
 		'email',
 		'password',
-        'user_type',
+    'user_type',
 		'email_verified_at',
 		'remember_token'
 	];
