@@ -10,7 +10,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\User as Authenticatable
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\Permission\Traits\HasRoles;
+use App\Enums\UserType;
 
 /**
  * Class User
@@ -36,8 +38,9 @@ use Illuminate\Database\Eloquent\User as Authenticatable
 class User extends Authenticatable
 {
 	use SoftDeletes;
-	use HasApiTokens
-	use Notifiable
+	use HasApiTokens;
+	use Notifiable;
+    use HasRoles;
 
 	protected $hidden = [
 		'password',
@@ -49,9 +52,14 @@ class User extends Authenticatable
 		'last_name',
 		'email',
 		'password',
+        'user_type',
 		'email_verified_at',
 		'remember_token'
 	];
+
+    protected $casts = [
+        'user_type' => UserType::class,
+    ];
 
 	public function admins(): HasOne
 	{
@@ -72,4 +80,13 @@ class User extends Authenticatable
 	{
 		return $this->hasOne(Faculty::class);
 	}
+
+    protected static function booted(){
+        static::created(function (User $user) {
+            if ($user->user_type && !$user->roles()->exists()) {
+                // Assign role matching the enum value (e.g. 'faculty', 'admin')
+                $user->assignRole($user->user_type->value);
+            }
+        });
+    }
 }
