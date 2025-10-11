@@ -77,7 +77,7 @@ return new /**
 
         // Add a foreign key to the 'departments' table for the department chair in the 'faculties' table
         Schema::table('departments', function (Blueprint $table) {
-            $table->foreignId('department_chair')->constrained('faculties'); // Foreign key to 'faculties' table
+            $table->foreignId('department_chair')->nullable()->constrained('faculties'); // Foreign key to 'faculties' table
         });
     }
 
