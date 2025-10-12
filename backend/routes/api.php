@@ -11,6 +11,6 @@ Route::middleware('auth:sanctum')->get('/users', function () {
     return User::all();
 });
 
-Route::middleware('auth:sanctum')->get('/', function () {
-
+Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanctum']], function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
 });

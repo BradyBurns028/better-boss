@@ -1,12 +1,18 @@
 <script lang="ts">
+import {useAuthStore} from "~/stores/auth";
+
 export default defineComponent({
-  methods: {
-    // handels logout
-    handleLogout() {
-      // redirects to login page
-      this.$router.push('/login')
+    data() {
+        return {
+            authStore: useAuthStore()
+        }
+    },
+    methods: {
+        async handleLogout(this: any) {
+            await this.authStore.logout()
+            navigateTo('login')
+        }
     }
-  }
 })
 </script>
 <template>
@@ -50,7 +56,7 @@ export default defineComponent({
       <div class="flex items-center space-x-4">
         <span class="text-gray-700">first name last name</span>
         <button
-          @click="$router.push('/login')"
+          @click="handleLogout"
           class="px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-md hover:bg-red-50 hover:text-red-700">Logout
         </button>
       </div>

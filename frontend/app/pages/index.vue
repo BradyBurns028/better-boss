@@ -1,8 +1,22 @@
-<!-- redirect to login page -->
 <script lang="ts">
-export default {
-  mounted() {
-    this.$router.push('/login')
-  }
-}
+import { useAuthStore } from '~/stores/auth'
+
+export default defineNuxtComponent({
+    name: 'Home',
+    async mounted() {
+        const auth = useAuthStore()
+
+        if (!auth.user && auth.token) {
+            try {
+                await auth.hydrate()
+            } catch { /* ignore */ }
+        }
+
+        navigateTo(auth.isAuthenticated ? '/dashboard' : '/login')
+    },
+})
 </script>
+
+<template>
+
+</template>

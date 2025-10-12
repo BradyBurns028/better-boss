@@ -2,24 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ApiResponse;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
 
-class AuthController {
-    public function register(Request $request) {
+class AuthController extends AbstractController {
+    public function register(Request $request): Response
+    {
         $fields = $request->validate([
-            'name' => 'required|string',
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
             'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
+            'password' => 'required|string|confirmed',
+            'user_type' => ['required'],
         ]);
 
         $user = User::create([
-            'name' => $fields['name'],
+            'first_name' => $fields['first_name'],
+            'last_name' => $fields['last_name'],
             'email' => $fields['email'],
-            'password' => bcrypt($fields['password'])
+            'password' => bcrypt($fields['password']),
+            'user_type' => $fields['user_type'],
         ]);
 
         $token = $user->createToken('myapptoken')->plainTextToken;
@@ -29,10 +33,10 @@ class AuthController {
             'token' => $token
         ];
 
-        return response($response, 201);
+        return $this->response($response);
     }
 
-    public function login(Request $request): array|string {
+    public function login(Request $request): Response {
         $fields = $request->validate([
             'email' => 'required|string',
             'password' => 'required|string'
@@ -43,7 +47,7 @@ class AuthController {
 
         // Check password
         if(!$user || !Hash::check($fields['password'], $user->password)) {
-            return 'Login failed';
+            return $this->error(401, 'Login failed', 'validation_failed');
         }
         $token = $user->createToken('myapptoken')->plainTextToken;
 
@@ -52,12 +56,12 @@ class AuthController {
             'token' => $token
         ];
 
-        return $response;
+        return $this->response($response);
     }
 
-    public function logout(Request $request) {
+    public function logout(): Response {
         auth()->user()->tokens()->delete();
 
-        return 'Logout successful';
+        return $this->response('Logout successful');
     }
 }
