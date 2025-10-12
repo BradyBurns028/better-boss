@@ -54,7 +54,7 @@ export default defineComponent({
       </div>
       <!-- user and logout -->
       <div class="flex items-center space-x-4">
-        <span class="text-gray-700">first name last name</span>
+        <span class="text-gray-700">{{ authStore.fullName }}</span>
         <button
           @click="handleLogout"
           class="px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-md hover:bg-red-50 hover:text-red-700">Logout
