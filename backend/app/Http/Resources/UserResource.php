@@ -15,17 +15,16 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'email' => $this->email,
-            'user_type' => $this->whenNotNull($this->user_type),
+            'user_type' => $this->user_type,
 
-            // Relations
-            'admins' => $this->whenLoaded('admins'),
-            'organizations' => $this->whenLoaded('organizations'),
-            'students' => $this->whenLoaded('students'),
-            'faculties' => $this->whenLoaded('faculties'),
-            'roles' => $this->whenLoaded('roles'),
+            'admin' => AdminResource::make($this->whenLoaded('admins')),
+            'organization' => OrganizationResource::make($this->whenLoaded('organizations')),
+            'student' => StudentResource::make($this->whenLoaded('students')),
+            'faculty' => FacultyResource::make($this->whenLoaded('faculties'))
         ];
     }
 }

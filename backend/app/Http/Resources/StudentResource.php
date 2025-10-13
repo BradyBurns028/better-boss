@@ -15,14 +15,15 @@ class StudentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'user'=>UserResource::make($this->whenLoaded('user')),
-            'current_classes'=>$this->whenLoaded('classes'),
-            'organization'=>$this->whenLoaded('organization'),
-            'advisor'=>$this->whenLoaded('advisor'),
+            'current_classes'=>$this->classes,
+            'organization'=>$this->organization,
+            'advisor'=>$this->advisor,
             'department'=>[
                 'name'=>$this->whenLoaded('degreeProgram.department'),
-                'degree_program'=>$this->whenLoaded('degreeProgram.name')
-            ]
+                'degree_program'=>$this->whenLoaded('degreeProgram.name'),
+            ],
+            
+            'user'=>UserResource::make($this->whenLoaded('user'))
         ];
     }
 }
