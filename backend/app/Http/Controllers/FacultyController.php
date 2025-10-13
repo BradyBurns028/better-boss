@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
+use App\Models\Faculty;
 use Illuminate\Http\Request;
-
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Resources\StudentResource;
+use App\Http\Resources\FacultyResource;
 
-class StudentController extends AbstractController
+class FacultyController extends AbstractController
 {
     /**
      * Display a listing of the resource.
@@ -29,8 +28,9 @@ class StudentController extends AbstractController
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'degree_program' => 'required|integer|exists:degree_programs,id',
-            'faculty_id' => 'nullable|integer|exists:faculties,id',
+            'office' => 'sometimes|nullable|string|max:255',
+            'role_type' => 'required|string',
+            'department_id' => 'required|integer|exists:departments,id',
         ]);
 
         $user = User::create([
@@ -40,43 +40,45 @@ class StudentController extends AbstractController
             'password' => bcrypt($data['password']),
         ]);
 
-        $student = Student::create([
+        $faculty = Faculty::create([
             'user_id' => $user->id,
-            'degree_program' => $data['degree_program'],
-            'faculty_id' => $data['faculty_id'] ?? null,
+            'office' => $data['office'] ?? null,
+            'role_type' => $data['role_type'],
+            'department_id' => $data['department_id'],
         ]);
 
         return [
-            'user'=>$user,
-            'student'=>$student
+            'user' => $user,
+            'faculty' => $faculty,
         ];
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Student $student)
+    public function show(Faculty $faculty)
     {
-        $student->load('user', 'degreeProgram.department.organization', 'faculty', 'degreeProgram');
+        $faculty->load('user', 'department', 'degreePrograms', 'advisees');
 
-        return $this->response(data: StudentResource::make($student));
+        return $this->response(data: FacultyResource::make($faculty));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Student $student)
+    public function update(Request $request, Faculty $faculty)
     {
         $data = $request->validate([
             'first_name' => 'sometimes|required|string|max:255',
             'last_name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $student->user_id,
+            'email' => 'sometimes|required|email|unique:users,email,' . $faculty->user_id,
             'password' => 'sometimes|nullable|string|min:8|confirmed',
-            'degree_program' => 'sometimes|required|integer|exists:degree_programs,id',
-            'faculty_id' => 'sometimes|nullable|integer|exists:faculties,id',
+            'office' => 'sometimes|nullable|string|max:255',
+            'role_type' => 'sometimes|required|string',
+            'department_id' => 'sometimes|required|integer|exists:departments,id',
         ]);
 
-        $user = $student->user;
+        $user = $faculty->user;
 
         if (isset($data['first_name'])) $user->first_name = $data['first_name'];
         if (isset($data['last_name'])) $user->last_name = $data['last_name'];
@@ -85,18 +87,19 @@ class StudentController extends AbstractController
 
         $user->save();
 
-        if (isset($data['degree_program'])) $student->degree_program = $data['degree_program'];
-        if (array_key_exists('faculty_id', $data)) $student->faculty_id = $data['faculty_id'];
+        if (isset($data['office'])) $faculty->office = $data['office'];
+        if (isset($data['role_type'])) $faculty->role_type = $data['role_type'];
+        if (isset($data['department_id'])) $faculty->department_id = $data['department_id'];
 
-        $student->save();
+        $faculty->save();
 
-        return $student;
+        return $faculty;
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Student $student)
+    public function destroy(Faculty $faculty)
     {
         //
     }

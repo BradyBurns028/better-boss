@@ -6,20 +6,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class UserController
+use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Log;
+
+class UserController extends AbstractController
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
     {
         //
     }
@@ -41,10 +36,11 @@ class UserController
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => bcrypt($data['password']),
             'user_type' => $data['user_type'] ?? null,
         ]);
 
+        
         return $user;
     }
 
@@ -53,17 +49,9 @@ class UserController
      */
     public function show(User $user)
     {
-        return $this->response(UserResource::make(
-            $user->with('first_name','last_name', 'email', 'user_type')
-        ));
-    }
+        $user->load(['admins', 'organizations', 'students', 'faculties']);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
-    {
-        //
+        return $this->response(data: UserResource::make($user));
     }
 
     /**
@@ -82,7 +70,7 @@ class UserController
         if (isset($data['first_name'])) $user->first_name = $data['first_name'];
         if (isset($data['last_name'])) $user->last_name = $data['last_name'];
         if (isset($data['email'])) $user->email = $data['email'];
-        if (!empty($data['password'])) $user->password = Hash::make($data['password']);
+        if (!empty($data['password'])) $user->password = bcrypt($data['password']);
         if (array_key_exists('user_type', $data)) $user->user_type = $data['user_type'];
 
         $user->save();
