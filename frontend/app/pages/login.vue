@@ -1,6 +1,11 @@
 <script lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import type { LoginPayload } from '~/api/AuthenticationAPI'
+import {navigateTo} from "#imports";
+
+definePageMeta({
+    layout: 'headerless'
+})
 
 export default defineNuxtComponent({
     name: 'Login',
@@ -15,16 +20,22 @@ export default defineNuxtComponent({
     methods: {
         async handleLogin(this: any) {
             const payload: LoginPayload = { email: this.email, password: this.password }
-            const ok = await this.authStore.login(payload)
-            if (ok) {
-                navigateTo('dashboard')
+            const user = await this.authStore.login(payload)
+            if (user) {
+                if (user.user_type === 'student') navigateTo('student')
+                else if (user.user_type === 'faculty') navigateTo('faculty')
+                else if (user.user_type === 'admin') navigateTo('admin')
+                else navigateTo('login')
             }
         },
     },
 
     async mounted() {
         if (this.authStore.isAuthenticated) {
-            navigateTo('dashboard')
+            if (this.authStore.user.role === 'student') navigateTo('student')
+            else if (this.authStore.user.role === 'faculty') navigateTo('faculty')
+            else if (this.authStore.user.role === 'admin') navigateTo('admin')
+            else navigateTo('login')
         }
     },
 })
