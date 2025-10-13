@@ -43,10 +43,10 @@ class AdminController extends AbstractController
             'user_id' => $user->id,
         ]);
 
-        return [
+        return $this->response([
             'user'=>$user,
             'admin'=>$admin
-        ];
+        ]);
     }
 
     /**
@@ -80,7 +80,7 @@ class AdminController extends AbstractController
 
         $user->save();
 
-        return $admin;
+        return $this->response($admin);
     }
 
     /**

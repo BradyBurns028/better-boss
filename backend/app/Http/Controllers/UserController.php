@@ -40,8 +40,8 @@ class UserController extends AbstractController
             'user_type' => $data['user_type'] ?? null,
         ]);
 
-        
-        return $user;
+
+        return $this->response($user);
     }
 
     /**
@@ -75,7 +75,7 @@ class UserController extends AbstractController
 
         $user->save();
 
-        return $user;
+        return $this->response($user);
     }
 
     /**

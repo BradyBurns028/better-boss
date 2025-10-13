@@ -46,10 +46,10 @@ class StudentController extends AbstractController
             'faculty_id' => $data['faculty_id'] ?? null,
         ]);
 
-        return [
+        return $this->response([
             'user'=>$user,
             'student'=>$student
-        ];
+        ]);
     }
 
     /**
@@ -90,7 +90,7 @@ class StudentController extends AbstractController
 
         $student->save();
 
-        return $student;
+        return $this->response($student);
     }
 
     /**

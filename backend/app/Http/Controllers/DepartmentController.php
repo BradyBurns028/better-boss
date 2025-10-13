@@ -33,7 +33,7 @@ class DepartmentController extends AbstractController
             'department_chair' => $data['department_chair'] ?? null,
         ]);
 
-        return $department;
+        return $this->response($department);
     }
 
     /**
@@ -63,7 +63,7 @@ class DepartmentController extends AbstractController
 
         $department->save();
 
-        return $department;
+        return $this->response($department);
     }
 
     /**

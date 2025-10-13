@@ -38,7 +38,7 @@ class OrganizationController extends AbstractController
             'address' => $data['address'] ?? null,
         ]);
 
-        return $organization;
+        return $this->response($organization);
     }
 
     /**
@@ -70,7 +70,7 @@ class OrganizationController extends AbstractController
 
         $organization->save();
 
-        return $organization;
+        return $this->response($organization);
     }
 
     /**
