@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\StudentResource;
+use Symfony\Component\HttpFoundation\Response;
 
 class StudentController extends AbstractController
 {
@@ -55,11 +56,10 @@ class StudentController extends AbstractController
     /**
      * Display the specified resource.
      */
-    public function show(Student $student)
-    {
-        $student->load('user', 'degreeProgram.department.organization', 'faculty', 'degreeProgram');
+    public function show(Student $student): Response {
+        $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
 
-        return $this->response(data: StudentResource::make($student));
+        return $this->response(StudentResource::make($student));
     }
 
     /**
