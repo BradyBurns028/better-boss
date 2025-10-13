@@ -1,6 +1,18 @@
-<script setup>
-definePageMeta({
-  layout: 'student-header'
+<script lang="ts">
+definePageMeta(() => {
+    const authStore = useAuthStore()
+    const isAdmin = authStore.user && authStore.user.user_type === 'admin'
+    return {
+        layout: isAdmin ? 'default' : 'student-header'
+    }
+})
+export default defineNuxtComponent({
+    layout: 'default',
+    data() {
+        return {
+            authStore: useAuthStore()
+        }
+    }
 })
 </script>
 

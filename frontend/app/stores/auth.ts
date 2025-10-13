@@ -29,16 +29,23 @@ const TOKEN_KEY = 'authToken'
 const getStoredToken = (): string | null =>
     typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null
 
-const setStoredToken = (token: string | null) => {
+const setStoredToken = (token: string | null, user: any) => {
     if (typeof window === 'undefined') return
-    if (token) localStorage.setItem(TOKEN_KEY, token)
-    else localStorage.removeItem(TOKEN_KEY)
+    if (token) {
+        localStorage.setItem('authToken', token)
+        localStorage.setItem('authUser', user)
+    }  else {
+        localStorage.removeItem(TOKEN_KEY)
+    }
 }
 
 export const useAuthStore = defineStore<'auth', AuthState, AuthGetters, AuthActions>('auth', {
     state: (): AuthState => ({
         token: getStoredToken(),
-        user: null,
+        user:
+            typeof window !== 'undefined'
+                ? JSON.parse(localStorage.getItem('authUser') || 'null')
+                : null,
         loading: false,
     }),
 
@@ -46,6 +53,7 @@ export const useAuthStore = defineStore<'auth', AuthState, AuthGetters, AuthActi
         isAuthenticated: (s: { token: any; user: any }) => !!s.token && !!s.user,
         fullName: (s: { user: { first_name: any; last_name: any } }) => (s.user ? `${s.user.first_name} ${s.user.last_name}` : ''),
         role: (s: { user: { user_type: any } }) => s.user?.user_type ?? null,
+        id: (s: { user: { id: any } }) => s.user?.id ?? null,
         hasRole: (s: { user: { user_type: any } }) => (role: string | string[]) => {
             const u = s.user?.user_type
             if (!u) return false
@@ -54,15 +62,15 @@ export const useAuthStore = defineStore<'auth', AuthState, AuthGetters, AuthActi
     },
 
     actions: {
-        async login(this: AuthStore, payload: LoginPayload): Promise<boolean> {
+        async login(this: AuthStore, payload: LoginPayload): Promise<Array> {
             this.loading = true
             try {
                 const data = await authenticationApi.login(payload)
                 if (!data) return false
                 this.token = data.token
-                this.user  = data.user
-                setStoredToken(data.token)
-                return true
+                this.user = data.user
+                setStoredToken(data.token, this.user)
+                return this.user
             } finally {
                 this.loading = false
             }
@@ -76,7 +84,7 @@ export const useAuthStore = defineStore<'auth', AuthState, AuthGetters, AuthActi
             finally {
                 this.token = null
                 this.user  = null
-                setStoredToken(null)
+                setStoredToken(null, null)
                 this.loading = false
             }
         },
@@ -85,7 +93,7 @@ export const useAuthStore = defineStore<'auth', AuthState, AuthGetters, AuthActi
             const token = getStoredToken()
             if (!token) {
                 this.token = null
-                this.user  = null
+                this.user = null
                 return
             }
             this.loading = true
