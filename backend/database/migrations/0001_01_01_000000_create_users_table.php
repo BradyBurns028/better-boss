@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('last_name'); // User's last name
             $table->string('email')->unique(); // Unique email address
             $table->string('password'); // User's password
+            $table->string('user_type'); // User type (e.g., admin, student)
             $table->timestamps(); // Timestamps for created_at and updated_at
             $table->softDeletes(); // Soft delete column
             $table->timestamp('email_verified_at')->nullable(); // Nullable timestamp for email verification

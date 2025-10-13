@@ -24,6 +24,7 @@ The base table for all authenticated users.
 | last_name | string | User's last name |
 | email | string (unique) | User’s email |
 | password | string | Encrypted password |
+|user_type | enum('admin', 'faculty', 'student') | Type of user |
 | email_verified_at | timestamp (nullable) | Email verification date |
 | deleted_at | timestamp (nullable) | For soft deletes |
 | created_at / updated_at | timestamps | Auto-managed by Laravel |

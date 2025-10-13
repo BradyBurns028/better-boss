@@ -25,6 +25,6 @@ Route::apiResource('admins', AdminController::class);
 //     return User::all();
 // });
 
-// Route::middleware('auth:sanctum')->get('/', function () {
-
-// });
+Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanctum']], function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
