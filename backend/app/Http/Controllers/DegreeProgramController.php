@@ -33,7 +33,7 @@ class DegreeProgramController extends AbstractController
             'program_chair' => $data['program_chair'] ?? null,
         ]);
 
-        return $degreeProgram;
+        return $this->response($degreeProgram);
     }
 
     /**
@@ -63,7 +63,7 @@ class DegreeProgramController extends AbstractController
 
         $degreeProgram->save();
 
-        return $degreeProgram;
+        return $this->response($degreeProgram);
     }
 
     /**

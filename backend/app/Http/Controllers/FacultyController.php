@@ -47,10 +47,10 @@ class FacultyController extends AbstractController
             'department_id' => $data['department_id'],
         ]);
 
-        return [
+        return $this->response([
             'user' => $user,
             'faculty' => $faculty,
-        ];
+        ]);
     }
 
     /**
@@ -93,7 +93,7 @@ class FacultyController extends AbstractController
 
         $faculty->save();
 
-        return $faculty;
+        return $this->response($faculty);
     }
 
     /**
