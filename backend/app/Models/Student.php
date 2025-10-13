@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -34,18 +35,21 @@ class Student extends Model
 		'faculty_id'
 	];
 
-	public function degreeProgram(): BelongsTo
-	{
+	public function degreeProgram(): BelongsTo {
 		return $this->belongsTo(DegreeProgram::class, 'degree_program');
 	}
 
-	public function user(): BelongsTo
-	{
+	public function user(): BelongsTo {
 		return $this->belongsTo(User::class);
 	}
 
-	public function faculty(): BelongsTo
-	{
+	public function faculty(): BelongsTo {
 		return $this->belongsTo(Faculty::class);
 	}
+
+    protected function organization(): Attribute {
+        return Attribute::get(fn () =>
+            $this->degreeProgram?->department?->organization
+        );
+    }
 }
