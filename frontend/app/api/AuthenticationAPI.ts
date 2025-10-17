@@ -35,7 +35,10 @@ export class AuthenticationApi extends BaseApi<never, {}> {
 
     async login(body: LoginPayload) {
         return await this.unwrap<LoginResponse>(
-            apiService.post<LoginResponse>(`${this.resource}login`, body)
+            apiService.post<LoginResponse>(`${this.resource}login`, body),
+            {
+                error: 'Unable to Login'
+            }
         )
     }
 

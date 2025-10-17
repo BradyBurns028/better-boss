@@ -62,7 +62,7 @@ export const useAuthStore = defineStore<'auth', AuthState, AuthGetters, AuthActi
     },
 
     actions: {
-        async login(this: AuthStore, payload: LoginPayload): Promise<Array> {
+        async login(this: AuthStore, payload: LoginPayload): Promise<boolean | User> {
             this.loading = true
             try {
                 const data = await authenticationApi.login(payload)

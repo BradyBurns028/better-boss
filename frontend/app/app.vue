@@ -5,6 +5,7 @@ export default defineNuxtComponent({
 </script>
 <template>
     <div>
+        <Toast />
         <NuxtLayout>
             <NuxtPage />
         </NuxtLayout>
