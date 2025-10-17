@@ -15,7 +15,6 @@ export default defineComponent({
     computed: {
         navItems(this: any): NavItem[] {
             const role = this.authStore?.user?.user_type
-            console.log(role === 'student')
             if (!role) {
                 return [
                     { label: 'Help', to: '/help' }

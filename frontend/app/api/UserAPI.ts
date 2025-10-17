@@ -6,15 +6,18 @@ export enum UserTypeEnum {
     FACULTY = 'faculty'
 }
 
-export type User = {
+export interface User {
     id: number
     first_name: string
     last_name: string
     email: string
     user_type: UserTypeEnum
+    email_verified_at?: string | null
+    created_at?: string
+    updated_at?: string
 }
 
-export class UserApi extends BaseApi<User, {}> {
+export class UserApi extends BaseApi<User, never> {
     constructor() {
         super('users')
     }

@@ -1,7 +1,8 @@
-import {authenticationApi, type RoleName} from '~/api/AuthenticationAPI'
-import type { User, LoginPayload } from '~/api/AuthenticationAPI'
+import {authenticationApi, type LoginResponse} from '~/api/AuthenticationAPI'
+import type { LoginPayload } from '~/api/AuthenticationAPI'
 // @ts-ignore
 import { defineStore, type Store } from 'pinia'
+import type {User, UserTypeEnum} from "~/api/UserAPI";
 
 type AuthState = {
     token: string | null
@@ -12,7 +13,7 @@ type AuthState = {
 type AuthGetters = {
     isAuthenticated(state: AuthState): boolean
     fullName(state: AuthState): string
-    role(state: AuthState): RoleName | null
+    role(state: AuthState): UserTypeEnum | null
     hasRole(state: AuthState): (role: string | string[]) => boolean
 }
 
@@ -65,7 +66,7 @@ export const useAuthStore = defineStore<'auth', AuthState, AuthGetters, AuthActi
         async login(this: AuthStore, payload: LoginPayload): Promise<boolean | User> {
             this.loading = true
             try {
-                const data = await authenticationApi.login(payload)
+                const data: LoginResponse | null = await authenticationApi.login(payload)
                 if (!data) return false
                 this.token = data.token
                 this.user = data.user
