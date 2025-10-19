@@ -1,12 +1,23 @@
 import {BaseApi} from "~/api/BaseAPI";
-import {apiService} from '~/services/ApiService'
 
-export type User = {
-    id: number
-    name: string
+export enum UserTypeEnum {
+    ADMIN = 'admin',
+    STUDENT = 'student',
+    FACULTY = 'faculty'
 }
 
-export class UserApi extends BaseApi<User, {}> {
+export interface User {
+    id: number
+    first_name: string
+    last_name: string
+    email: string
+    user_type: UserTypeEnum
+    email_verified_at?: string | null
+    created_at?: string
+    updated_at?: string
+}
+
+export class UserApi extends BaseApi<User, never> {
     constructor() {
         super('users')
     }

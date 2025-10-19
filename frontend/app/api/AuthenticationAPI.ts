@@ -1,18 +1,6 @@
 import {BaseApi} from "~/api/BaseAPI";
 import {apiService} from '~/services/ApiService'
-
-export type RoleName = 'admin' | 'owner' | 'faculty' | 'student'
-
-export interface User {
-    id: number
-    first_name: string
-    last_name: string
-    email: string
-    user_type: RoleName
-    email_verified_at?: string | null
-    created_at?: string
-    updated_at?: string
-}
+import type {User} from "~/api/UserAPI";
 
 export interface LoginPayload {
     email: string
@@ -25,7 +13,7 @@ export interface LoginResponse {
 }
 
 /**
- * Auth API: login/logout/me
+ * Auth API: login/logout
  * Uses your ApiResponse envelope and BaseApi.unwrap + toast notifications.
  */
 export class AuthenticationApi extends BaseApi<never, {}> {
@@ -33,15 +21,18 @@ export class AuthenticationApi extends BaseApi<never, {}> {
         super('')
     }
 
-    async login(body: LoginPayload) {
+    async login(body: LoginPayload): Promise<LoginResponse | null> {
         return await this.unwrap<LoginResponse>(
-            apiService.post<LoginResponse>(`${this.resource}login`, body)
+            apiService.post<LoginResponse>(`${this.resource}login`, body),
+            {
+                error: 'Unable to Login'
+            }
         )
     }
 
-    async logout() {
-        return this.unwrap<null>(
-            apiService.post<null>(`${this.resource}logout`, {}),
+    async logout(): Promise<string | null> {
+        return this.unwrap<string>(
+            apiService.post<string>(`${this.resource}logout`, {}),
         )
     }
 }
