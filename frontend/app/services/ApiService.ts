@@ -38,13 +38,14 @@ export const apiService = {
         body?: any,
         params?: Record<string, any>
     ): Promise<ApiResponse<T>> => {
-        // @ts-ignore
-        return await $fetch(`/api/${endpoint}`, {
-            method,
-            body,
-            params,
-            headers: getHeaders(body instanceof FormData),
-        })
+        try {
+            // @ts-ignore
+            return await $fetch<ApiResponse<T>>(`/api/${endpoint}`, {
+                method, body, params, headers: getHeaders(body instanceof FormData),
+            })
+        } catch (err: any) {
+            return err?.response?._data as ApiResponse<T>
+        }
     },
 
     get: <T>(endpoint: string, params?: Record<string, any>): Promise<ApiResponse<T>> =>
