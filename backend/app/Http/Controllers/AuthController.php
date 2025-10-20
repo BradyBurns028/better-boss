@@ -92,16 +92,13 @@ class AuthController extends AbstractController {
 
         try {
             $deleted = $user->tokens()->delete();
-
             // Specific error when user had no tokens to delete
             if ($deleted === 0) {
                 return $this->error(400, 'No active tokens found for this user', 'no_tokens');
             }
-
             return $this->response('Logout successful');
 
         } catch (Exception $e) {
-
             return $this->error(500, 'logout_failed', 'logout_failed');
         }
     }
