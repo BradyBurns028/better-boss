@@ -27,7 +27,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('course_id')->constrained('courses');
             $table->integer('section_number');
-            $table->string('quarter');
+            $table->string('term');
             $table->integer('year');
             $table->time('time');
             $table->foreignId('instructor_id')->constrained('faculties');
@@ -55,7 +55,7 @@ return new class extends Migration
             $table->foreignId('course_id')->constrained('courses');
             $table->primary(['plan_of_study_id', 'course_id']);
             $table->integer('year');
-            $table->string('quarter');
+            $table->string('term');
             $table->string('status'); //planned, completed, active, dropped
             $table->foreignId('course_section_id')->nullable()->constrained('course_sections');
         });
