@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Mockery\Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends AbstractController {
@@ -60,8 +62,26 @@ class AuthController extends AbstractController {
     }
 
     public function logout(): Response {
-        auth()->user()->tokens()->delete();
+        $user = auth()->user();
 
-        return $this->response('Logout successful');
+        // Specific error when there's no authenticated user
+        if (!$user) {
+            return $this->error(401, 'No authenticated user', 'not_authenticated');
+        }
+
+        try {
+            $deleted = $user->tokens()->delete();
+
+            // Specific error when user had no tokens to delete
+            if ($deleted === 0) {
+                return $this->error(400, 'No active tokens found for this user', 'no_tokens');
+            }
+
+            return $this->response('Logout successful');
+
+        } catch (Exception $e) {
+
+            return $this->error(500, 'logout_failed', 'logout_failed');
+        }
     }
 }
