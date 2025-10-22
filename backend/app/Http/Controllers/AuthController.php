@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserType;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -57,6 +59,25 @@ class AuthController extends AbstractController {
         ];
 
         return $this->response($response);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    public function me(Request $request): Response {
+        /** @var User $user */
+        $user = $request->user('sanctum');
+
+        if (!$user) {
+            return $this->error(401, 'No user found', 'no_token');
+        }
+
+        if ($user->user_type == UserType::STUDENT) {
+            $user->load('students');
+        }
+
+        return $this->response(UserResource::make($user));
     }
 
     public function logout(): Response {

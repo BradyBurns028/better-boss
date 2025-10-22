@@ -21,10 +21,7 @@ Route::apiResource('departments', DepartmentController::class);
 Route::apiResource('degree_programs', DegreeProgramController::class);
 Route::apiResource('admins', AdminController::class);
 
-// Route::middleware('auth:sanctum')->get('/users', function () {
-//     return User::all();
-// });
-
 Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanctum']], function () {
+    Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
