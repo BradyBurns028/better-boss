@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\Admin;
 use App\Models\User;
 use App\Http\Resources\OrganizationResource;
+use App\Http\Requests\StoreOrganizationRequest;
+use App\Http\Requests\UpdateOrganizationRequest;
 
 class OrganizationController extends AbstractController
 {
@@ -22,14 +24,9 @@ class OrganizationController extends AbstractController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreOrganizationRequest $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'admin_id' => 'required|integer|exists:admins,id',
-            'owner_id' => 'nullable|integer|exists:users,id',
-            'address' => 'nullable|string|max:1000',
-        ]);
+        $data = $request->validated();
 
         $organization = Organization::create([
             'name' => $data['name'],
@@ -54,14 +51,9 @@ class OrganizationController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Organization $organization)
+    public function update(UpdateOrganizationRequest $request, Organization $organization)
     {
-        $data = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'admin_id' => 'sometimes|required|integer|exists:admins,id',
-            'owner_id' => 'sometimes|nullable|integer|exists:users,id',
-            'address' => 'sometimes|nullable|string|max:1000',
-        ]);
+        $data = $request->validated();
 
         if (isset($data['name'])) $organization->name = $data['name'];
         if (isset($data['admin_id'])) $organization->admin_id = $data['admin_id'];

@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\StudentResource;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\StoreStudentRequest;
+use App\Http\Requests\UpdateStudentRequest;
 
 class StudentController extends AbstractController
 {
@@ -23,22 +25,16 @@ class StudentController extends AbstractController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreStudentRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'degree_program' => 'required|integer|exists:degree_programs,id',
-            'faculty_id' => 'nullable|integer|exists:faculties,id',
-        ]);
+        $data = $request->validated();
 
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'user_type' => $data['user_type'] ?? 'student',
         ]);
 
         $student = Student::create([
@@ -65,16 +61,9 @@ class StudentController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Student $student)
+    public function update(UpdateStudentRequest $request, Student $student)
     {
-        $data = $request->validate([
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $student->user_id,
-            'password' => 'sometimes|nullable|string|min:8|confirmed',
-            'degree_program' => 'sometimes|required|integer|exists:degree_programs,id',
-            'faculty_id' => 'sometimes|nullable|integer|exists:faculties,id',
-        ]);
+        $data = $request->validated();
 
         $user = $student->user;
 

@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\AdminResource;
+use App\Http\Requests\StoreAdminRequest;
+use App\Http\Requests\UpdateAdminRequest;
 
 class AdminController extends AbstractController
 {
@@ -21,14 +23,9 @@ class AdminController extends AbstractController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAdminRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $data = $request->validated();
 
         // Create the user
         $user = User::create([
@@ -36,6 +33,8 @@ class AdminController extends AbstractController
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            // ensure user_type is set (DB requires NOT NULL)
+            'user_type' => $data['user_type'] ?? 'admin',
         ]);
 
         // Create the admin record linked to the user
@@ -62,14 +61,9 @@ class AdminController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Admin $admin)
+    public function update(UpdateAdminRequest $request, Admin $admin)
     {
-        $data = $request->validate([
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $admin->user_id,
-            'password' => 'sometimes|nullable|string|min:8|confirmed',
-        ]);
+        $data = $request->validated();
 
         $user = $admin->user;
 
