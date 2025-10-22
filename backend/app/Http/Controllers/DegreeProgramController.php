@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\DegreeProgram;
 use Illuminate\Http\Request;
 use App\Http\Resources\DegreeProgramResource;
+use App\Http\Requests\StoreDegreeProgramRequest;
+use App\Http\Requests\UpdateDegreeProgramRequest;
 
 class DegreeProgramController extends AbstractController
 {
@@ -19,13 +21,9 @@ class DegreeProgramController extends AbstractController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreDegreeProgramRequest $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'department_id' => 'required|integer|exists:departments,id',
-            'program_chair' => 'sometimes|nullable|integer|exists:faculties,id',
-        ]);
+        $data = $request->validated();
 
         $degreeProgram = DegreeProgram::create([
             'name' => $data['name'],
@@ -49,13 +47,9 @@ class DegreeProgramController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, DegreeProgram $degreeProgram)
+    public function update(UpdateDegreeProgramRequest $request, DegreeProgram $degreeProgram)
     {
-        $data = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'department_id' => 'sometimes|required|integer|exists:departments,id',
-            'program_chair' => 'sometimes|nullable|integer|exists:faculties,id',
-        ]);
+        $data = $request->validated();
 
         if (isset($data['name'])) $degreeProgram->name = $data['name'];
         if (isset($data['department_id'])) $degreeProgram->department_id = $data['department_id'];

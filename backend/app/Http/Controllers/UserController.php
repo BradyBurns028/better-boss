@@ -5,8 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 
 use App\Http\Resources\UserResource;
+use App\Models\Admin;
+use App\Enums\UserType;
+use App\Models\Student;
+use App\Models\Faculty;
 use Illuminate\Support\Facades\Log;
 
 class UserController extends AbstractController
@@ -22,15 +28,9 @@ class UserController extends AbstractController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'user_type' => 'sometimes|nullable|string',
-        ]);
+        $data = $request->validated();
 
         $user = User::create([
             'first_name' => $data['first_name'],
@@ -40,8 +40,9 @@ class UserController extends AbstractController
             'user_type' => $data['user_type'] ?? null,
         ]);
 
+        $user->load(['admins', 'organizations', 'students', 'faculties']);
 
-        return $this->response($user);
+        return $this->response(data: UserResource::make($user));
     }
 
     /**
@@ -57,25 +58,24 @@ class UserController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $data = $request->validate([
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
-            'password' => 'sometimes|nullable|string|min:8|confirmed',
-            'user_type' => 'sometimes|nullable|string',
-        ]);
+        $data = $request->validated();
 
-        if (isset($data['first_name'])) $user->first_name = $data['first_name'];
-        if (isset($data['last_name'])) $user->last_name = $data['last_name'];
-        if (isset($data['email'])) $user->email = $data['email'];
-        if (!empty($data['password'])) $user->password = bcrypt($data['password']);
-        if (array_key_exists('user_type', $data)) $user->user_type = $data['user_type'];
+        // Handle password hashing if present
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
 
+        // Mass assign allowed fields
+        $user->fill($data);
         $user->save();
 
-        return $this->response($user);
+        $user = $user->fresh(['admins', 'organizations', 'students', 'faculties']);
+
+        return $this->response(data: UserResource::make($user));
     }
 
     /**

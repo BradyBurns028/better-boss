@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\FacultyResource;
+use App\Http\Requests\StoreFacultyRequest;
+use App\Http\Requests\UpdateFacultyRequest;
 
 class FacultyController extends AbstractController
 {
@@ -21,23 +23,16 @@ class FacultyController extends AbstractController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreFacultyRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'office' => 'sometimes|nullable|string|max:255',
-            'role_type' => 'required|string',
-            'department_id' => 'required|integer|exists:departments,id',
-        ]);
+        $data = $request->validated();
 
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'user_type' => $data['user_type'] ?? 'faculty',
         ]);
 
         $faculty = Faculty::create([
@@ -66,7 +61,7 @@ class FacultyController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Faculty $faculty)
+    public function update(UpdateFacultyRequest $request, Faculty $faculty)
     {
         $data = $request->validate([
             'first_name' => 'sometimes|required|string|max:255',
