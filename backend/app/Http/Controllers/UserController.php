@@ -40,29 +40,6 @@ class UserController extends AbstractController
             'user_type' => $data['user_type'] ?? null,
         ]);
 
-        // If user_type indicates admin, create Admin record
-        // $userType = $data['user_type'] ?? null;
-        // if ($userType && ($userType === UserType::ADMIN->value || $userType === 'admin')) {
-        //     // create admin record if it doesn't exist
-        //     if (!$user->admins()->exists()) {
-        //         Admin::create(['user_id' => $user->id]);
-        //     }
-        // }
-
-        // // If user_type indicates student, create Student record if missing
-        // if ($userType && ($userType === UserType::STUDENT->value || $userType === 'student')) {
-        //     if (!$user->students()->exists()) {
-        //         Student::create(['user_id' => $user->id]);
-        //     }
-        // }
-
-        // // If user_type indicates faculty, create Faculty record if missing
-        // if ($userType && ($userType === UserType::FACULTY->value || $userType === 'faculty')) {
-        //     if (!$user->faculties()->exists()) {
-        //         Faculty::create(['user_id' => $user->id]);
-        //     }
-        // }
-
         $user->load(['admins', 'organizations', 'students', 'faculties']);
 
         return $this->response(data: UserResource::make($user));
