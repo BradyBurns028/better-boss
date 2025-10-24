@@ -22,8 +22,10 @@ class DatabaseSeeder extends Seeder {
         $this->call([
             PermissionSeeder::class,
             UserSeeder::class,
+            OrganizationSeeder::class,
+            CourseSeeder::class
         ]);
-        $users = User::factory(10)->create();
+        /*$users = User::factory(10)->create();
 
         $adminUsers = $users->where('user_type', UserType::ADMIN->value)->values();
         $facultyUsers = $users->where('user_type', UserType::FACULTY->value)->values();
@@ -134,6 +136,6 @@ class DatabaseSeeder extends Seeder {
                 'faculty_id'     => $advisor->id,
                 'degree_program' => $program->id,
             ]);
-        }
+        }*/
     }
 }

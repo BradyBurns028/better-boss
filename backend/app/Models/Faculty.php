@@ -17,7 +17,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Class Faculty
- * 
+ *
+ * @method static firstOrCreate(array $array)
+ *
  * @property int $id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

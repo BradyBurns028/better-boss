@@ -5,6 +5,7 @@ namespace App\Models\Courses;
 use App\Models\Faculty;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -31,6 +32,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @package App\Models\Courses
  */
 class CourseSection extends Model {
+
+    use HasFactory;
+
     protected $fillable = [
         'course_id',
         'section_number',
@@ -40,10 +44,6 @@ class CourseSection extends Model {
         'instructor_id',
         'capacity',
         'room_number',
-    ];
-
-    protected $casts = [
-        'time' => 'time'
     ];
 
     /**
