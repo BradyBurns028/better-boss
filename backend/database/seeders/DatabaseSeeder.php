@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\FacultyRoleTypeEnum;
 use App\Models\Admin;
 use App\Models\DegreeProgram;
 use App\Models\Department;
@@ -12,17 +13,16 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use App\Enums\UserType;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder {
     /**
      * Seed the application's database.
      */
-    public function run(): void
-    {
-        foreach(UserType::cases() as $type) {
-            Role::firstOrCreate(['name' => $type->value]);
-        }
+    public function run(): void {
+        $this->call([
+            PermissionSeeder::class,
+            UserSeeder::class,
+        ]);
         $users = User::factory(10)->create();
 
         $adminUsers = $users->where('user_type', UserType::ADMIN->value)->values();
@@ -68,7 +68,7 @@ class DatabaseSeeder extends Seeder {
         });
 
         $faculties = collect();
-        $roles = ['Professor', 'Associate Professor', 'Assistant Professor', 'Instructor'];
+        $roles = FacultyRoleTypeEnum::cases();
 
         foreach ($facultyUsers as $idx => $user) {
             $dept = $departments[$idx % $departments->count()];

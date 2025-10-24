@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -31,9 +32,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @package App\Models
  */
-class Organization extends Model
-{
-	use SoftDeletes;
+class Organization extends Model {
+	use SoftDeletes, HasFactory;
 
 	protected $fillable = [
 		'name',
@@ -42,18 +42,15 @@ class Organization extends Model
 		'address'
 	];
 
-	public function admin(): BelongsTo
-	{
+	public function admin(): BelongsTo {
 		return $this->belongsTo(Admin::class);
 	}
 
-	public function user(): BelongsTo
-	{
+	public function user(): BelongsTo {
 		return $this->belongsTo(User::class, 'owner_id');
 	}
 
-	public function departments(): HasMany
-	{
+	public function departments(): HasMany {
 		return $this->hasMany(Department::class);
 	}
 }
