@@ -19,12 +19,15 @@ use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class User
+ *
+ * @method static create(array $array)
  * 
  * @property int $id
  * @property string $first_name
  * @property string $last_name
  * @property string $email
  * @property string $password
+ * @property UserType $user_type
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
