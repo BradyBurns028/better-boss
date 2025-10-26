@@ -10,6 +10,10 @@ use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DegreeProgramController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CourseSectionController;
+use App\Http\Controllers\PlannedCoursePivotController;
+use App\Http\Controllers\PlanOfStudyController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -20,6 +24,10 @@ Route::apiResource('faculties', FacultyController::class);
 Route::apiResource('departments', DepartmentController::class);
 Route::apiResource('degree_programs', DegreeProgramController::class);
 Route::apiResource('admins', AdminController::class);
+Route::apiResource('courses', CourseController::class);
+Route::apiResource('course_sections', CourseSectionController::class);
+Route::apiResource('planned_course_pivots', PlannedCoursePivotController::class);
+Route::apiResource('plans_of_study', PlanOfStudyController::class);
 
 Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanctum']], function () {
     Route::get('/me', [AuthController::class, 'me']);
