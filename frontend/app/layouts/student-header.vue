@@ -20,6 +20,8 @@ export default defineComponent({
                 this.organization = user.student.organization.name
             } else if (user.user_type === 'faculty') {
                 this.organization = user.organization.name
+            } else if (user.user_type === 'admin') {
+                this.organization = 'Admin'
             }
         },
     },
