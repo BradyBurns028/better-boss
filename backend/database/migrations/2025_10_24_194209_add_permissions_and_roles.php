@@ -18,75 +18,75 @@ return new class extends Migration
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            //All users
-            'view users',
-            'create users',
-            'edit users',
-            'delete users',
-            'assign roles',
-            'index users',
-            'index user details',
+            // All users
+            'view_users',
+            'create_users',
+            'edit_users',
+            'delete_users',
+            'assign_roles',
+            'index_users',
+            'index_user_details',
 
-            //Students
-            'view students',
-            'view student details',
-            'create students',
-            'edit students',
-            'delete students',
-            'view advisees',
+            // Students
+            'view_students',
+            'view_student_details',
+            'create_students',
+            'edit_students',
+            'delete_students',
+            'view_advisees',
 
-            //Faculty
-            'view faculty',
-            'view faculty details',
-            'create faculty',
-            'edit faculty',
-            'view administrators',
-            'view instructors',
-            'view staff',
+            // Faculty
+            'view_faculty',
+            'view_faculty_details',
+            'create_faculty',
+            'edit_faculty',
+            'view_administrators',
+            'view_instructors',
+            'view_staff',
 
-            //Departments
-            'view departments',
-            'create departments',
-            'edit departments',
-            'delete departments',
+            // Departments
+            'view_departments',
+            'create_departments',
+            'edit_departments',
+            'delete_departments',
 
-            //Organizations
-            'view organizations',
-            'create organizations',
-            'edit organizations',
-            'delete organizations',
-            'index organizations',
-            'index organization details',
+            // Organizations
+            'view_organizations',
+            'create_organizations',
+            'edit_organizations',
+            'delete_organizations',
+            'index_organizations',
+            'index_organization_details',
 
-            //Degree Programs
-            'view degree programs',
-            'create degree programs',
-            'edit degree programs',
-            'delete degree programs',
+            // Degree Programs
+            'view_degree_programs',
+            'create_degree_programs',
+            'edit_degree_programs',
+            'delete_degree_programs',
 
-            //Degree Requirements
-            'view degree requirements',
-            'edit degree requirements',
+            // Degree Requirements
+            'view_degree_requirements',
+            'edit_degree_requirements',
 
-            //Courses
-            'view courses',
-            'create courses',
-            'edit courses',
-            'delete courses',
+            // Courses
+            'view_courses',
+            'create_courses',
+            'edit_courses',
+            'delete_courses',
 
-            //Course Sections
-            'view course sections',
-            'create course sections',
-            'edit course sections',
-            'delete course sections',
-            'view enrolled students',
+            // Course Sections
+            'view_course_sections',
+            'create_course_sections',
+            'edit_course_sections',
+            'delete_course_sections',
+            'view_enrolled_students',
 
-            //Plans of Study
-            'view plans of study',
-            'create plans of study',
-            'edit plans of study',
-            'delete plans of study',
-            'index plans of study',
+            // Plans of Study
+            'view_plans_of_study',
+            'create_plans_of_study',
+            'edit_plans_of_study',
+            'delete_plans_of_study',
+            'index_plans_of_study',
         ];
 
         foreach ($permissions as $permission) {
@@ -95,68 +95,67 @@ return new class extends Migration
 
         // Create roles and assign existing permissions
         $roles = [
-            'site admin' => Permission::all(),
+            'site_admin' => Permission::all(),
             'administrator' => Permission::whereIn('name', [
-                'view students',
-                'view student details',
-                'create students',
-                'edit students',
-                'delete students',
-                'view faculty',
-                'view faculty',
-                'view faculty details',
-                'create faculty',
-                'edit faculty',
-                'view departments',
-                'create departments',
-                'edit departments',
-                'delete departments',
-                'index organizations',
-                'index organization details',
-                'view degree programs',
-                'create degree programs',
-                'edit degree programs',
-                'delete degree programs',
-                'view degree requirements',
-                'edit degree requirements',
-                'view courses',
-                'create courses',
-                'edit courses',
-                'delete courses',
-                'view course sections',
-                'create course sections',
-                'edit course sections',
-                'delete course sections'
+                'view_students',
+                'view_student_details',
+                'create_students',
+                'edit_students',
+                'delete_students',
+                'view_faculty',
+                'view_faculty_details',
+                'create_faculty',
+                'edit_faculty',
+                'view_departments',
+                'create_departments',
+                'edit_departments',
+                'delete_departments',
+                'index_organizations',
+                'index_organization_details',
+                'view_degree_programs',
+                'create_degree_programs',
+                'edit_degree_programs',
+                'delete_degree_programs',
+                'view_degree_requirements',
+                'edit_degree_requirements',
+                'view_courses',
+                'create_courses',
+                'edit_courses',
+                'delete_courses',
+                'view_course_sections',
+                'create_course_sections',
+                'edit_course_sections',
+                'delete_course_sections'
             ])->get(),
             'staff' => Permission::whereIn('name', [
-                'view facutly',
-                'view departments',
-                'index organizations'
+                'view_faculty',
+                'view_departments',
+                'index_organizations'
             ])->get(),
             'instructor' => Permission::whereIn('name', [
-                'view adviesees',
-                'view faculty',
-                'view departments',
-                'index organizations',
-                'view degree programs',
-                'view degree requirements',
-                'view courses',
-                'view course sections',
-                'view enrolled students',
-                'index plans of study'
+                'view_advisees',
+                'view_faculty',
+                'view_departments',
+                'index_organizations',
+                'view_degree_programs',
+                'view_degree_requirements',
+                'view_courses',
+                'view_course_sections',
+                'view_enrolled_students',
+                'index_plans_of_study'
             ])->get(),
             'student' => Permission::whereIn('name', [
-                'view instructors',
-                'view departments',
-                'index organizations',
-                'view degree programs',
-                'view degree requirements',
-                'view courses',
-                'view course sections',
-                'index plans of study',
-                'create plans of study',
-                'edit plans of study',
-                'delete plans of study'
+                'view_instructors',
+                'view_departments',
+                'index_organizations',
+                'view_degree_programs',
+                'view_degree_requirements',
+                'view_courses',
+                'view_course_sections',
+                'index_plans_of_study',
+                'create_plans_of_study',
+                'edit_plans_of_study',
+                'delete_plans_of_study'
             ])->get()
         ];
 
@@ -175,7 +174,7 @@ return new class extends Migration
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         Role::whereIn('name', [
-            'site admin',
+            'site_admin',
             'administrator',
             'staff',
             'instructor',
@@ -183,75 +182,75 @@ return new class extends Migration
         ])->delete();
 
         Permission::whereIn('name', [
-            //All users
-            'view users',
-            'create users',
-            'edit users',
-            'delete users',
-            'assign roles',
-            'index users',
-            'index user details',
+            // All users
+            'view_users',
+            'create_users',
+            'edit_users',
+            'delete_users',
+            'assign_roles',
+            'index_users',
+            'index_user_details',
 
-            //Students
-            'view students',
-            'view student details',
-            'create students',
-            'edit students',
-            'delete students',
-            'view advisees',
+            // Students
+            'view_students',
+            'view_student_details',
+            'create_students',
+            'edit_students',
+            'delete_students',
+            'view_advisees',
 
-            //Faculty
-            'view faculty',
-            'view faculty details',
-            'create faculty',
-            'edit faculty',
-            'view administrators',
-            'view instructors',
-            'view staff',
+            // Faculty
+            'view_faculty',
+            'view_faculty_details',
+            'create_faculty',
+            'edit_faculty',
+            'view_administrators',
+            'view_instructors',
+            'view_staff',
 
-            //Departments
-            'view departments',
-            'create departments',
-            'edit departments',
-            'delete departments',
+            // Departments
+            'view_departments',
+            'create_departments',
+            'edit_departments',
+            'delete_departments',
 
-            //Organizations
-            'view organizations',
-            'create organizations',
-            'edit organizations',
-            'delete organizations',
-            'index organizations',
-            'index organization details',
+            // Organizations
+            'view_organizations',
+            'create_organizations',
+            'edit_organizations',
+            'delete_organizations',
+            'index_organizations',
+            'index_organization_details',
 
-            //Degree Programs
-            'view degree programs',
-            'create degree programs',
-            'edit degree programs',
-            'delete degree programs',
+            // Degree Programs
+            'view_degree_programs',
+            'create_degree_programs',
+            'edit_degree_programs',
+            'delete_degree_programs',
 
-            //Degree Requirements
-            'view degree requirements',
-            'edit degree requirements',
+            // Degree Requirements
+            'view_degree_requirements',
+            'edit_degree_requirements',
 
-            //Courses
-            'view courses',
-            'create courses',
-            'edit courses',
-            'delete courses',
+            // Courses
+            'view_courses',
+            'create_courses',
+            'edit_courses',
+            'delete_courses',
 
-            //Course Sections
-            'view course sections',
-            'create course sections',
-            'edit course sections',
-            'delete course sections',
-            'view enrolled students',
+            // Course Sections
+            'view_course_sections',
+            'create_course_sections',
+            'edit_course_sections',
+            'delete_course_sections',
+            'view_enrolled_students',
 
-            //Plans of Study
-            'view plans of study',
-            'create plans of study',
-            'edit plans of study',
-            'delete plans of study',
-            'index plans of study',
+            // Plans of Study
+            'view_plans_of_study',
+            'create_plans_of_study',
+            'edit_plans_of_study',
+            'delete_plans_of_study',
+            'index_plans_of_study',
         ])->delete();
     }
 };
