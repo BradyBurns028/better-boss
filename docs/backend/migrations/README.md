@@ -147,6 +147,112 @@ Represents enrolled students.
 
 ---
 
+### **8. courses**
+Represents courses offered by departments.
+
+| Column | Type | Description                           |
+|--------|------|---------------------------------------|
+| id | bigint (PK) | Unique identifier                     |
+| created_at / updated_at | timestamps | Auto-managed by Laravel               |
+| course_code | string | e.g., "CSC 130"                       |
+| name | string | Course title                          |
+| description | text (nullable) | Course description                    |
+| credits | integer | Credit hours                          |
+| department_id | bigint (FK → departments.id) | Owning department                     |
+| prerequisite_id | bigint (nullable, FK → courses.id) | Optional self-referential prerequisite |
+
+**Relationships**
+- Belongs to a `Department`
+- Optional self-referential prerequisite (points to another Course)
+- Has many `CourseSections`
+
+---
+
+### **9. course_sections**
+Represents individual course offerings (sections) in a term.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | bigint (PK) | Unique identifier |
+| created_at / updated_at | timestamps | Auto-managed by Laravel |
+| course_id | bigint (FK → courses.id) | Parent course |
+| section_number | integer | Section index (e.g., 1, 2) |
+| term | string | Term label (e.g., "Fall") |
+| year | integer | Year (e.g., 2025) |
+| time | time | Meeting time |
+| instructor_id | bigint (FK → faculties.id) | Faculty teaching the section |
+| capacity | integer | Enrollment capacity |
+| room_number | string | Room identifier |
+
+**Relationships**
+- Belongs to a `Course` and a `Faculty` (instructor)
+
+---
+
+### **10. plan_of_studies**
+Represents a student's plan of study for a degree program.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | bigint (PK) | Unique identifier |
+| created_at / updated_at | timestamps | Auto-managed by Laravel |
+| degree_program_id | bigint (FK → degree_programs.id) | Degree program for the plan |
+| student_id | bigint (FK → students.id) | Owner student |
+
+**Relationships**
+- Belongs to a `DegreeProgram` and a `Student`
+- Has many `PlannedCourses`
+
+---
+
+### **11. degree_requirements**
+Maps required courses for a degree program (composite primary key).
+
+Pivot table for many-to-many relationship between `DegreePrograms` and `Courses`.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| degree_program_id | bigint (FK → degree_programs.id) | Part of composite PK |
+| course_id | bigint (FK → courses.id) | Part of composite PK |
+| course_set | integer | Group id for interchangeable courses |
+| minimum_grade | integer | Minimum required grade (numeric threshold) |
+
+**Primary Key**
+- Composite primary key on (degree_program_id, course_id)
+
+**Relationships**
+- Maps required `Courses` to `DegreePrograms`
+- `course_set` groups courses that can substitute for one another
+
+---
+
+### **12. planned_courses**
+Tracks courses planned or taken within a `PlanOfStudy` (composite primary key).
+
+pivot table for many-to-many relationship between `PlanOfStudies` and `Courses`.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| plan_of_study_id | bigint (FK → plan_of_studies.id) | Part of composite PK |
+| course_id | bigint (FK → courses.id) | Part of composite PK |
+| year | integer | Planned/recorded year |
+| term | string | Planned/recorded term |
+| status | string | e.g., "planned", "active", "completed", "dropped" |
+| course_section_id | bigint (nullable, FK → course_sections.id) | Optional section assignment |
+
+**Primary Key**
+- Composite primary key on (plan_of_study_id, course_id)
+
+**Relationships**
+- Belongs to `PlanOfStudy` and `Course`
+- Optionally links to a `CourseSection` (for assigned/active courses)
+
+**Notes**
+- Composite primary keys are used for mapping tables (`degree_requirements`, `planned_courses`).
+- Status is stored as a string; consider an enum or lookup table for stricter validation.
+
+---
+
 ## Entity Relationship Summary
 
 This section summarizes all relationships between entities in plain language.
