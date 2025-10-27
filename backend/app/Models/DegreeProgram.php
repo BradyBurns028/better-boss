@@ -6,10 +6,13 @@
 
 namespace App\Models;
 
+use App\Models\Courses\Course;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -28,8 +31,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @package App\Models
  */
-class DegreeProgram extends Model
-{
+class DegreeProgram extends Model {
+
+    use HasFactory;
 
 	protected $fillable = [
 		'name',
@@ -51,4 +55,18 @@ class DegreeProgram extends Model
 	{
 		return $this->hasMany(Student::class, 'degree_program');
 	}
+
+    /**
+     * Courses that satisfy this degree program's requirements.
+     *
+     * @return BelongsToMany<Course>
+     */
+    public function courses(): BelongsToMany {
+        return $this->belongsToMany(
+            Course::class,
+            'degree_requirements',
+            'degree_program_id',
+            'course_id'
+        )->withPivot(['course_set', 'minimum_grade']);
+    }
 }
