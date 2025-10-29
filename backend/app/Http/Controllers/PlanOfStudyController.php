@@ -50,9 +50,6 @@ class PlanOfStudyController extends AbstractController
     {
         $data = $request->validated();
 
-        if (isset($data['degree_program_id'])) $planOfStudy->degree_program_id = $data['degree_program_id'];
-        if (isset($data['student_id'])) $planOfStudy->student_id = $data['student_id'];
-
         $planOfStudy->save();
 
         return $this->response($planOfStudy);

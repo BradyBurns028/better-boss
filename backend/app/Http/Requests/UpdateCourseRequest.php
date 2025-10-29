@@ -17,11 +17,11 @@ class UpdateCourseRequest extends FormRequest
         $courseId = $this->route('course')?->id ?? null;
 
         return [
-            'course_code' => 'sometimes|string|max:255|unique:courses,course_code,' . $courseId,
-            'name' => 'sometimes|string|max:255',
+            'course_code' => 'required|string|max:255|unique:courses,course_code',
+            'name' => 'required|string|max:255',
             'description' => 'sometimes|nullable|string',
-            'credits' => 'sometimes|integer|min:0',
-            'department_id' => 'sometimes|integer|exists:departments,id',
+            'credits' => 'required|integer|min:0',
+            'department_id' => 'required|integer|exists:departments,id',
             'prerequisite_id' => 'sometimes|nullable|integer|exists:courses,id',
         ];
     }

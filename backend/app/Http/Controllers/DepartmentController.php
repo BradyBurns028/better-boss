@@ -51,10 +51,6 @@ class DepartmentController extends AbstractController
     {
         $data = $request->validated();
 
-        if (isset($data['name'])) $department->name = $data['name'];
-        if (isset($data['organization_id'])) $department->organization_id = $data['organization_id'];
-        if (array_key_exists('department_chair', $data)) $department->department_chair = $data['department_chair'];
-
         $department->save();
 
         return $this->response($department);

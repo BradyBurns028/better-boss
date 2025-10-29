@@ -15,8 +15,8 @@ class UpdatePlanOfStudyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'degree_program_id' => 'sometimes|integer|exists:degree_programs,id',
-            'student_id' => 'sometimes|integer|exists:students,id',
+            'degree_program_id' => 'required|integer|exists:degree_programs,id',
+            'student_id' => 'required|integer|exists:students,id',
         ];
     }
 

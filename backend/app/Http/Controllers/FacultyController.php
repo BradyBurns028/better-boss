@@ -75,16 +75,7 @@ class FacultyController extends AbstractController
 
         $user = $faculty->user;
 
-        if (isset($data['first_name'])) $user->first_name = $data['first_name'];
-        if (isset($data['last_name'])) $user->last_name = $data['last_name'];
-        if (isset($data['email'])) $user->email = $data['email'];
-        if (!empty($data['password'])) $user->password = Hash::make($data['password']);
-
         $user->save();
-
-        if (isset($data['office'])) $faculty->office = $data['office'];
-        if (isset($data['role_type'])) $faculty->role_type = $data['role_type'];
-        if (isset($data['department_id'])) $faculty->department_id = $data['department_id'];
 
         $faculty->save();
 

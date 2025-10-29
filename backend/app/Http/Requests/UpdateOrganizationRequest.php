@@ -17,8 +17,8 @@ class UpdateOrganizationRequest extends FormRequest
         $orgId = $this->route('organization')?->id ?? null;
 
         return [
-            'name' => 'sometimes|string|max:255',
-            'admin_id' => 'sometimes|integer|exists:admins,id',
+            'name' => 'required|string|max:255',
+            'admin_id' => 'required|integer|exists:admins,id',
             'owner_id' => 'nullable|integer|exists:users,id',
             'address' => 'nullable|string|max:1000',
         ];

@@ -17,8 +17,8 @@ class UpdateDegreeProgramRequest extends FormRequest
         $dpId = $this->route('degree_program')?->id ?? null;
 
         return [
-            'name' => 'sometimes|string|max:255',
-            'department_id' => 'sometimes|integer|exists:departments,id',
+            'name' => 'required|string|max:255',
+            'department_id' => 'required|integer|exists:departments,id',
             'program_chair' => 'sometimes|nullable|integer|exists:faculties,id',
         ];
     }

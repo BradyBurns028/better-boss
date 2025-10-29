@@ -15,10 +15,10 @@ class UpdateCourseSectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'course_id' => 'sometimes|integer|exists:courses,id',
-            'section_number' => 'sometimes|integer',
-            'term' => 'sometimes|string|max:255',
-            'year' => 'sometimes|integer|min:1900|max:2100',
+            'course_id' => 'required|integer|exists:courses,id',
+            'section_number' => 'required|integer',
+            'term' => 'required|string|max:255',
+            'year' => 'required|integer|min:1900|max:2100',
             'time' => 'sometimes|nullable|date_format:H:i:s',
             'instructor_id' => 'sometimes|nullable|integer|exists:faculties,id',
             'capacity' => 'sometimes|nullable|integer|min:0',

@@ -67,15 +67,7 @@ class StudentController extends AbstractController
 
         $user = $student->user;
 
-        if (isset($data['first_name'])) $user->first_name = $data['first_name'];
-        if (isset($data['last_name'])) $user->last_name = $data['last_name'];
-        if (isset($data['email'])) $user->email = $data['email'];
-        if (!empty($data['password'])) $user->password = Hash::make($data['password']);
-
         $user->save();
-
-        if (isset($data['degree_program'])) $student->degree_program = $data['degree_program'];
-        if (array_key_exists('faculty_id', $data)) $student->faculty_id = $data['faculty_id'];
 
         $student->save();
 

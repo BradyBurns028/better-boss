@@ -19,11 +19,11 @@ class UpdateStudentRequest extends FormRequest
         $studentId = $this->route('student')?->id ?? null;
 
         return [
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email',
-            'password' => 'sometimes|string|min:8|confirmed',
-            'degree_program' => 'sometimes|integer|exists:degree_programs,id',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'degree_program' => 'required|integer|exists:degree_programs,id',
             'faculty_id' => 'nullable|integer|exists:faculties,id',
         ];
     }
