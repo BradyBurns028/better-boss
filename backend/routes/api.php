@@ -32,4 +32,11 @@ Route::apiResource('plans_of_study', PlanOfStudyController::class);
 Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanctum']], function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::apiResource('students', StudentController::class);
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('organizations', OrganizationController::class);
+    Route::apiResource('faculties', FacultyController::class);
+    Route::apiResource('departments', DepartmentController::class);
+    Route::apiResource('degree_programs', DegreeProgramController::class);
+    Route::apiResource('admins', AdminController::class);
 });
