@@ -11,6 +11,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Admin;
 use App\Enums\UserType;
+use App\Enums\PermissionEnum;
 use App\Models\Student;
 use App\Models\Faculty;
 use Illuminate\Support\Facades\Log;
@@ -70,6 +71,8 @@ class UserController extends AbstractController
      */
     public function store(StoreUserRequest $request)
     {
+        $this->authorize(PermissionEnum::CREATE_USERS->value);
+
         $data = $request->validated();
 
         $user = User::create([
@@ -90,6 +93,8 @@ class UserController extends AbstractController
      */
     public function show(User $user)
     {
+        $this->authorize(PermissionEnum::VIEW_USERS->value);
+
         $user->load(['admins', 'organizations', 'students', 'faculties']);
 
         return $this->response(data: UserResource::make($user));
@@ -100,6 +105,8 @@ class UserController extends AbstractController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        $this->authorize(PermissionEnum::EDIT_USERS->value);
+
         $data = $request->validated();
 
         // Handle password hashing if present

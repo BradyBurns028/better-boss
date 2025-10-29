@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Http\Resources\OrganizationResource;
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Http\Requests\UpdateOrganizationRequest;
+use App\Enums\PermissionEnum;
 
 class OrganizationController extends AbstractController
 {
@@ -66,6 +67,8 @@ class OrganizationController extends AbstractController
      */
     public function store(StoreOrganizationRequest $request)
     {
+        $this->authorize(PermissionEnum::CREATE_ORGANIZATIONS->value);
+
         $data = $request->validated();
 
         $organization = Organization::create([
@@ -83,6 +86,8 @@ class OrganizationController extends AbstractController
      */
     public function show(Organization $organization)
     {
+        $this->authorize(PermissionEnum::VIEW_ORGANIZATIONS->value);
+
         $organization->load('admin', 'user', 'departments');
 
         return $this->response(data: OrganizationResource::make($organization));
@@ -93,6 +98,8 @@ class OrganizationController extends AbstractController
      */
     public function update(UpdateOrganizationRequest $request, Organization $organization)
     {
+        $this->authorize(PermissionEnum::EDIT_ORGANIZATIONS->value);
+
         $data = $request->validated();
 
         $organization->fill($data);

@@ -8,6 +8,7 @@ use App\Http\Filters\DepartmentFilter;
 use App\Http\Resources\DepartmentResource;
 use App\Http\Requests\StoreDepartmentRequest;
 use App\Http\Requests\UpdateDepartmentRequest;
+use App\Enums\PermissionEnum;
 
 class DepartmentController extends AbstractController
 {
@@ -63,6 +64,8 @@ class DepartmentController extends AbstractController
      */
     public function store(StoreDepartmentRequest $request)
     {
+        $this->authorize(PermissionEnum::CREATE_DEPARTMENTS->value);
+
         $data = $request->validated();
 
         $department = Department::create([
@@ -79,6 +82,8 @@ class DepartmentController extends AbstractController
      */
     public function show(Department $department)
     {
+        $this->authorize(PermissionEnum::VIEW_DEPARTMENTS->value);
+
         $department->load(['organization', 'degreePrograms', 'faculty', 'departmentChair']);
 
         return $this->response(data: DepartmentResource::make($department));
@@ -89,6 +94,8 @@ class DepartmentController extends AbstractController
      */
     public function update(UpdateDepartmentRequest $request, Department $department)
     {
+        $this->authorize(PermissionEnum::EDIT_DEPARTMENTS->value);
+
         $data = $request->validated();
 
         $department->save();

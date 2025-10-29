@@ -8,6 +8,7 @@ use App\Http\Filters\DegreeProgramFilter;
 use App\Http\Resources\DegreeProgramResource;
 use App\Http\Requests\StoreDegreeProgramRequest;
 use App\Http\Requests\UpdateDegreeProgramRequest;
+use App\Enums\PermissionEnum;
 
 class DegreeProgramController extends AbstractController
 {
@@ -63,6 +64,8 @@ class DegreeProgramController extends AbstractController
      */
     public function store(StoreDegreeProgramRequest $request)
     {
+        $this->authorize(PermissionEnum::CREATE_DEGREE_PROGRAMS->value);
+
         $data = $request->validated();
 
         $degreeProgram = DegreeProgram::create([
@@ -79,6 +82,8 @@ class DegreeProgramController extends AbstractController
      */
     public function show(DegreeProgram $degreeProgram)
     {
+        $this->authorize(PermissionEnum::VIEW_DEGREE_PROGRAMS->value);
+
         $degreeProgram->load(['department', 'programChair', 'students']);
 
         return $this->response(data: DegreeProgramResource::make($degreeProgram));
@@ -89,6 +94,8 @@ class DegreeProgramController extends AbstractController
      */
     public function update(UpdateDegreeProgramRequest $request, DegreeProgram $degreeProgram)
     {
+        $this->authorize(PermissionEnum::EDIT_DEGREE_PROGRAMS->value);
+
         $data = $request->validated();
 
         $degreeProgram->save();

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\FacultyResource;
 use App\Http\Requests\StoreFacultyRequest;
 use App\Http\Requests\UpdateFacultyRequest;
+use App\Enums\PermissionEnum;
 
 class FacultyController extends AbstractController
 {
@@ -65,6 +66,8 @@ class FacultyController extends AbstractController
      */
     public function store(StoreFacultyRequest $request)
     {
+        $this->authorize(PermissionEnum::CREATE_FACULTY->value);
+
         $data = $request->validated();
 
         $user = User::create([
@@ -103,6 +106,8 @@ class FacultyController extends AbstractController
      */
     public function update(UpdateFacultyRequest $request, Faculty $faculty)
     {
+        $this->authorize(PermissionEnum::EDIT_FACULTY->value);
+
         $data = $request->validate([
             'first_name' => 'sometimes|required|string|max:255',
             'last_name' => 'sometimes|required|string|max:255',
