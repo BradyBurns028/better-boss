@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Faculty;
 use Illuminate\Http\Request;
-use App\Http\Filters\FacultyFilter;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\FacultyResource;
@@ -16,48 +15,9 @@ class FacultyController extends AbstractController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = Faculty::query();
-
-        // Includes
-        $allowedIncludes = ['user', 'department', 'degreePrograms', 'advisees'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
-
-        // Filters
-        (new FacultyFilter())->apply($request, $query);
-
-        // Sorting
-        $allowedSorts = ['id', 'department_id', 'role_type', 'created_at'];
-        $sort = (string) $request->query('sort', 'id');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'id';
-        }
-        $query->orderBy($sort, $direction);
-
-        // Pagination
-        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
-        $paginator = $query->paginate($perPage)->appends($request->query());
-
-        $data = FacultyResource::collection($paginator->items());
-        $meta = [
-            'page' => $paginator->currentPage(),
-            'total' => $paginator->total(),
-            'last_page' => $paginator->lastPage(),
-            'per_page' => $paginator->perPage(),
-            'current_page' => $paginator->currentPage(),
-        ];
-
-        return $this->response($data, $meta);
+        //
     }
 
     /**

@@ -11,55 +11,15 @@ use App\Http\Resources\StudentResource;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
-use App\Http\Filters\StudentFilter;
 
 class StudentController extends AbstractController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = Student::query();
-
-        // Includes (support nested degreeProgram.department)
-        $allowedIncludes = ['user', 'faculty', 'degreeProgram', 'degreeProgram.department'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
-
-        // Filters
-        (new StudentFilter())->apply($request, $query);
-
-        // Sorting
-        $allowedSorts = ['id', 'degree_program', 'faculty_id', 'created_at'];
-        $sort = (string) $request->query('sort', 'id');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'id';
-        }
-        $query->orderBy($sort, $direction);
-
-        // Pagination
-        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
-        $paginator = $query->paginate($perPage)->appends($request->query());
-
-        $data = StudentResource::collection($paginator->items());
-        $meta = [
-            'page' => $paginator->currentPage(),
-            'total' => $paginator->total(),
-            'last_page' => $paginator->lastPage(),
-            'per_page' => $paginator->perPage(),
-            'current_page' => $paginator->currentPage(),
-        ];
-
-        return $this->response($data, $meta);
+        //
     }
 
     /**
@@ -107,7 +67,15 @@ class StudentController extends AbstractController
 
         $user = $student->user;
 
+        if (isset($data['first_name'])) $user->first_name = $data['first_name'];
+        if (isset($data['last_name'])) $user->last_name = $data['last_name'];
+        if (isset($data['email'])) $user->email = $data['email'];
+        if (!empty($data['password'])) $user->password = Hash::make($data['password']);
+
         $user->save();
+
+        if (isset($data['degree_program'])) $student->degree_program = $data['degree_program'];
+        if (array_key_exists('faculty_id', $data)) $student->faculty_id = $data['faculty_id'];
 
         $student->save();
 

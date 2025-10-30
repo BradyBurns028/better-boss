@@ -14,55 +14,15 @@ use App\Enums\UserType;
 use App\Models\Student;
 use App\Models\Faculty;
 use Illuminate\Support\Facades\Log;
-use App\Http\Filters\UserFilter;
 
 class UserController extends AbstractController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = User::query();
-
-        // Includes
-        $allowedIncludes = ['admins', 'organizations', 'students', 'faculties'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
-
-        // Filters
-        (new UserFilter())->apply($request, $query);
-
-        // Sorting
-        $allowedSorts = ['id', 'last_name', 'first_name', 'email', 'created_at'];
-        $sort = (string) $request->query('sort', 'last_name');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'last_name';
-        }
-        $query->orderBy($sort, $direction);
-
-        // Pagination
-        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
-        $paginator = $query->paginate($perPage)->appends($request->query());
-
-        $data = UserResource::collection($paginator->items());
-        $meta = [
-            'page' => $paginator->currentPage(),
-            'total' => $paginator->total(),
-            'last_page' => $paginator->lastPage(),
-            'per_page' => $paginator->perPage(),
-            'current_page' => $paginator->currentPage(),
-        ];
-
-        return $this->response($data, $meta);
+        //
     }
 
     /**

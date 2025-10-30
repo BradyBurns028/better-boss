@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\DegreeProgram;
 use Illuminate\Http\Request;
-use App\Http\Filters\DegreeProgramFilter;
 use App\Http\Resources\DegreeProgramResource;
 use App\Http\Requests\StoreDegreeProgramRequest;
 use App\Http\Requests\UpdateDegreeProgramRequest;
@@ -14,48 +13,9 @@ class DegreeProgramController extends AbstractController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = DegreeProgram::query();
-
-        // Includes
-        $allowedIncludes = ['department', 'programChair', 'students'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
-
-        // Filters via DegreeProgramFilter
-        (new DegreeProgramFilter())->apply($request, $query);
-
-        // Sorting
-        $allowedSorts = ['id', 'name', 'department_id', 'created_at'];
-        $sort = (string) $request->query('sort', 'name');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'name';
-        }
-        $query->orderBy($sort, $direction);
-
-        // Pagination
-        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
-        $paginator = $query->paginate($perPage)->appends($request->query());
-
-        $data = DegreeProgramResource::collection($paginator->items());
-        $meta = [
-            'page' => $paginator->currentPage(),
-            'total' => $paginator->total(),
-            'last_page' => $paginator->lastPage(),
-            'per_page' => $paginator->perPage(),
-            'current_page' => $paginator->currentPage(),
-        ];
-
-        return $this->response($data, $meta);
+        //
     }
 
     /**

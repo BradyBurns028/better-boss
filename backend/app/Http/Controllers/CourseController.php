@@ -7,55 +7,15 @@ use Illuminate\Http\Request;
 use App\Http\Resources\CourseResource;
 use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseRequest;
-use App\Http\Filters\CourseFilter;
 
 class CourseController extends AbstractController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = Course::query();
-
-        // Includes
-        $allowedIncludes = ['department', 'prerequisite', 'dependents', 'sections', 'degreeRequirements', 'plans'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
-
-        // Filters
-        (new CourseFilter())->apply($request, $query);
-
-        // Sorting
-        $allowedSorts = ['id', 'course_code', 'name', 'credits', 'department_id', 'created_at'];
-        $sort = (string) $request->query('sort', 'course_code');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'course_code';
-        }
-        $query->orderBy($sort, $direction);
-
-        // Pagination
-        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
-        $paginator = $query->paginate($perPage)->appends($request->query());
-
-        $data = CourseResource::collection($paginator->items());
-        $meta = [
-            'page' => $paginator->currentPage(),
-            'total' => $paginator->total(),
-            'last_page' => $paginator->lastPage(),
-            'per_page' => $paginator->perPage(),
-            'current_page' => $paginator->currentPage(),
-        ];
-
-        return $this->response($data, $meta);
+        //
     }
 
     /**
