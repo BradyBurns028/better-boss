@@ -94,13 +94,6 @@ class CourseController extends AbstractController
     {
         $data = $request->validated();
 
-        if (isset($data['course_code'])) $course->course_code = $data['course_code'];
-        if (isset($data['name'])) $course->name = $data['name'];
-        if (array_key_exists('description', $data)) $course->description = $data['description'];
-        if (isset($data['credits'])) $course->credits = $data['credits'];
-        if (isset($data['department_id'])) $course->department_id = $data['department_id'];
-        if (array_key_exists('prerequisite_id', $data)) $course->prerequisite_id = $data['prerequisite_id'];
-
         $course->save();
 
         return $this->response($course);

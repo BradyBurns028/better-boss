@@ -91,10 +91,6 @@ class DegreeProgramController extends AbstractController
     {
         $data = $request->validated();
 
-        if (isset($data['name'])) $degreeProgram->name = $data['name'];
-        if (isset($data['department_id'])) $degreeProgram->department_id = $data['department_id'];
-        if (array_key_exists('program_chair', $data)) $degreeProgram->program_chair = $data['program_chair'];
-
         $degreeProgram->save();
 
         return $this->response($degreeProgram);

@@ -107,11 +107,6 @@ class AdminController extends AbstractController
 
         $user = $admin->user;
 
-        if (isset($data['first_name'])) $user->first_name = $data['first_name'];
-        if (isset($data['last_name']))  $user->last_name = $data['last_name'];
-        if (isset($data['email'])) $user->email = $data['email'];
-        if (!empty($data['password'])) $user->password = bcrypt($data['password']);
-
         $user->save();
 
         return $this->response($admin);

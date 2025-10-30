@@ -84,13 +84,6 @@ class PlannedCoursePivotController extends AbstractController
     {
         $data = $request->validated();
 
-        if (isset($data['plan_of_study_id'])) $plannedCoursePivot->plan_of_study_id = $data['plan_of_study_id'];
-        if (isset($data['course_id'])) $plannedCoursePivot->course_id = $data['course_id'];
-        if (array_key_exists('course_section_id', $data)) $plannedCoursePivot->course_section_id = $data['course_section_id'];
-        if (array_key_exists('year', $data)) $plannedCoursePivot->year = $data['year'];
-        if (array_key_exists('term', $data)) $plannedCoursePivot->term = $data['term'];
-        if (isset($data['status'])) $plannedCoursePivot->status = $data['status'];
-
         $plannedCoursePivot->save();
 
         return $this->response($plannedCoursePivot);

@@ -17,12 +17,12 @@ class UpdatePlannedCoursePivotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'plan_of_study_id' => 'sometimes|integer|exists:plan_of_studies,id',
-            'course_id' => 'sometimes|integer|exists:courses,id',
+            'plan_of_study_id' => 'required|integer|exists:plan_of_studies,id',
+            'course_id' => 'required|integer|exists:courses,id',
             'course_section_id' => 'sometimes|nullable|integer|exists:course_sections,id',
             'year' => 'sometimes|nullable|integer|min:1900|max:2100',
             'term' => 'sometimes|nullable|string|max:255',
-            'status' => ['sometimes', Rule::enum(PlannedCourseEnum::class)],
+            'status' => ['required', Rule::enum(PlannedCourseEnum::class)],
         ];
     }
 

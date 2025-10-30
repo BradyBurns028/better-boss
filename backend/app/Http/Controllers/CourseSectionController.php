@@ -96,15 +96,6 @@ class CourseSectionController extends AbstractController
     {
         $data = $request->validated();
 
-        if (isset($data['course_id'])) $courseSection->course_id = $data['course_id'];
-        if (isset($data['section_number'])) $courseSection->section_number = $data['section_number'];
-        if (isset($data['term'])) $courseSection->term = $data['term'];
-        if (isset($data['year'])) $courseSection->year = $data['year'];
-        if (array_key_exists('time', $data)) $courseSection->time = $data['time'];
-        if (array_key_exists('instructor_id', $data)) $courseSection->instructor_id = $data['instructor_id'];
-        if (array_key_exists('capacity', $data)) $courseSection->capacity = $data['capacity'];
-        if (array_key_exists('room_number', $data)) $courseSection->room_number = $data['room_number'];
-
         $courseSection->save();
 
         return $this->response($courseSection);
