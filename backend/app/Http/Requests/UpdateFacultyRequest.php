@@ -19,13 +19,13 @@ class UpdateFacultyRequest extends FormRequest
         $facultyId = $this->route('faculty')?->id ?? null;
 
         return [
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email',
-            'password' => 'sometimes|string|min:8|confirmed',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
             'office' => 'sometimes|nullable|string|max:255',
-            'role_type' => 'sometimes|string',
-            'department_id' => 'sometimes|integer|exists:departments,id',
+            'role_type' => 'required|string',
+            'department_id' => 'required|integer|exists:departments,id',
         ];
     }
 

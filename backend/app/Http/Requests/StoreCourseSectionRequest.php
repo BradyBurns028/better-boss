@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 
-class UpdateOrganizationRequest extends FormRequest
+class StoreCourseSectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,13 +14,15 @@ class UpdateOrganizationRequest extends FormRequest
 
     public function rules(): array
     {
-        $orgId = $this->route('organization')?->id ?? null;
-
         return [
-            'name' => 'required|string|max:255',
-            'admin_id' => 'required|integer|exists:admins,id',
-            'owner_id' => 'nullable|integer|exists:users,id',
-            'address' => 'nullable|string|max:1000',
+            'course_id' => 'required|integer|exists:courses,id',
+            'section_number' => 'required|integer',
+            'term' => 'required|string|max:255',
+            'year' => 'required|integer|min:1900|max:2100',
+            'time' => 'sometimes|nullable|date_format:H:i:s',
+            'instructor_id' => 'sometimes|nullable|integer|exists:faculties,id',
+            'capacity' => 'sometimes|nullable|integer|min:0',
+            'room_number' => 'sometimes|nullable|string|max:255',
         ];
     }
 

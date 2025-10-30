@@ -17,8 +17,8 @@ class UpdateDepartmentRequest extends FormRequest
         $deptId = $this->route('department')?->id ?? null;
 
         return [
-            'name' => 'sometimes|string|max:255',
-            'organization_id' => 'sometimes|integer|exists:organizations,id',
+            'name' => 'required|string|max:255',
+            'organization_id' => 'required|integer|exists:organizations,id',
             'department_chair' => 'sometimes|nullable|integer|exists:faculties,id',
         ];
     }

@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 
-class UpdateOrganizationRequest extends FormRequest
+class UpdatePlanOfStudyRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,13 +14,9 @@ class UpdateOrganizationRequest extends FormRequest
 
     public function rules(): array
     {
-        $orgId = $this->route('organization')?->id ?? null;
-
         return [
-            'name' => 'required|string|max:255',
-            'admin_id' => 'required|integer|exists:admins,id',
-            'owner_id' => 'nullable|integer|exists:users,id',
-            'address' => 'nullable|string|max:1000',
+            'degree_program_id' => 'required|integer|exists:degree_programs,id',
+            'student_id' => 'required|integer|exists:students,id',
         ];
     }
 

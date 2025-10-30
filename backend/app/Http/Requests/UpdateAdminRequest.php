@@ -16,10 +16,10 @@ class UpdateAdminRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email',
-            'password' => 'sometimes|string|min:8|confirmed',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
         ];
     }
 }

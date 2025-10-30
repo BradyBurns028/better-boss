@@ -4,8 +4,10 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use App\Enums\PlannedCourseEnum;
 
-class UpdateOrganizationRequest extends FormRequest
+class UpdatePlannedCoursePivotRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,13 +16,13 @@ class UpdateOrganizationRequest extends FormRequest
 
     public function rules(): array
     {
-        $orgId = $this->route('organization')?->id ?? null;
-
         return [
-            'name' => 'required|string|max:255',
-            'admin_id' => 'required|integer|exists:admins,id',
-            'owner_id' => 'nullable|integer|exists:users,id',
-            'address' => 'nullable|string|max:1000',
+            'plan_of_study_id' => 'required|integer|exists:plan_of_studies,id',
+            'course_id' => 'required|integer|exists:courses,id',
+            'course_section_id' => 'sometimes|nullable|integer|exists:course_sections,id',
+            'year' => 'sometimes|nullable|integer|min:1900|max:2100',
+            'term' => 'sometimes|nullable|string|max:255',
+            'status' => ['required', Rule::enum(PlannedCourseEnum::class)],
         ];
     }
 

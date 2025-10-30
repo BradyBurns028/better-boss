@@ -55,11 +55,7 @@ class OrganizationController extends AbstractController
     {
         $data = $request->validated();
 
-        if (isset($data['name'])) $organization->name = $data['name'];
-        if (isset($data['admin_id'])) $organization->admin_id = $data['admin_id'];
-        if (array_key_exists('owner_id', $data)) $organization->owner_id = $data['owner_id'];
-        if (array_key_exists('address', $data)) $organization->address = $data['address'];
-
+        $organization->fill($data);
         $organization->save();
 
         return $this->response($organization);
