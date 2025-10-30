@@ -7,15 +7,55 @@ use Illuminate\Http\Request;
 use App\Http\Resources\CourseSectionResource;
 use App\Http\Requests\StoreCourseSectionRequest;
 use App\Http\Requests\UpdateCourseSectionRequest;
+use App\Http\Filters\CourseSectionFilter;
 
 class CourseSectionController extends AbstractController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = CourseSection::query();
+
+        // Includes
+        $allowedIncludes = ['course', 'instructor', 'plans'];
+        $includes = array_filter(explode(',', (string) $request->query('include', '')));
+        $includes = array_values(array_intersect($allowedIncludes, $includes));
+        if (!empty($includes)) {
+            $query->with($includes);
+        }
+
+        // Filters via CourseSectionFilter
+        (new CourseSectionFilter())->apply($request, $query);
+
+        // Sorting
+        $allowedSorts = ['id', 'course_id', 'section_number', 'term', 'year', 'created_at'];
+        $sort = (string) $request->query('sort', 'year');
+        $direction = 'asc';
+        if (str_starts_with($sort, '-')) {
+            $direction = 'desc';
+            $sort = substr($sort, 1);
+        }
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'year';
+        }
+        $query->orderBy($sort, $direction);
+
+        // Pagination
+        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+        $paginator = $query->paginate($perPage)->appends($request->query());
+
+        $data = CourseSectionResource::collection($paginator->items());
+        $meta = [
+            'page' => $paginator->currentPage(),
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'current_page' => $paginator->currentPage(),
+        ];
+
+        return $this->response($data, $meta);
     }
 
     /**
