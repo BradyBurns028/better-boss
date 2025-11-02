@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use app\Enums\PermissionEnum;
 use App\Models\Courses\CourseSection;
 use Illuminate\Http\Request;
 use App\Http\Resources\CourseSectionResource;
@@ -63,6 +64,10 @@ class CourseSectionController extends AbstractController
      */
     public function store(StoreCourseSectionRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_COURSE_SECTIONS)) {
+            return $this->error(403, 'You do not have permission to create courses.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $courseSection = CourseSection::create([
@@ -84,6 +89,10 @@ class CourseSectionController extends AbstractController
      */
     public function show(CourseSection $courseSection)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_COURSE_SECTIONS)) {
+            return $this->error(403, 'You do not have permission to view course sections.', 'forbidden');
+        }
+
         $courseSection->load(['course', 'instructor', 'plans']);
 
         return $this->response(data: CourseSectionResource::make($courseSection));
@@ -94,6 +103,10 @@ class CourseSectionController extends AbstractController
      */
     public function update(UpdateCourseSectionRequest $request, CourseSection $courseSection)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_COURSE_SECTIONS)) {
+            return $this->error(403, 'You do not have permission to edit course sections.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $courseSection->save();

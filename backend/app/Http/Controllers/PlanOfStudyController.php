@@ -8,6 +8,7 @@ use App\Http\Resources\PlanOfStudyResource;
 use App\Http\Requests\StorePlanOfStudyRequest;
 use App\Http\Requests\UpdatePlanOfStudyRequest;
 use App\Http\Filters\PlanOfStudyFilter;
+use app\Enums\PermissionEnum;
 
 class PlanOfStudyController extends AbstractController
 {
@@ -63,6 +64,10 @@ class PlanOfStudyController extends AbstractController
      */
     public function store(StorePlanOfStudyRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_PLANS_OF_STUDY->value)) {
+            return $this->error(403, 'You do not have permission to create a plan of study.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $planOfStudy = PlanOfStudy::create([
@@ -78,6 +83,10 @@ class PlanOfStudyController extends AbstractController
      */
     public function show(PlanOfStudy $planOfStudy)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_PLANS_OF_STUDY->value)) {
+            return $this->error(403, 'You do not have permission to view this plan of study.', 'forbidden');
+        }
+
         $planOfStudy->load(['degreeProgram', 'student', 'courses', 'sections']);
 
         return $this->response(data: PlanOfStudyResource::make($planOfStudy));
@@ -88,6 +97,10 @@ class PlanOfStudyController extends AbstractController
      */
     public function update(UpdatePlanOfStudyRequest $request, PlanOfStudy $planOfStudy)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_PLANS_OF_STUDY->value)) {
+            return $this->error(403, 'You do not have permission to update this plan of study.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $planOfStudy->save();

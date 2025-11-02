@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use app\Enums\PermissionEnum;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
@@ -67,6 +68,10 @@ class StudentController extends AbstractController
      */
     public function store(StoreStudentRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to create student.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $user = User::create([
@@ -93,6 +98,10 @@ class StudentController extends AbstractController
      * Display the specified resource.
      */
     public function show(Student $student): Response {
+        if(!auth()->user()->can(PermissionEnum::VIEW_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
+        }
+
         $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
 
         return $this->response(StudentResource::make($student));
@@ -103,6 +112,10 @@ class StudentController extends AbstractController
      */
     public function update(UpdateStudentRequest $request, Student $student)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to update this student.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $user = $student->user;
