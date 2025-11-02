@@ -98,7 +98,26 @@ class FacultyController extends AbstractController
      */
     public function show(Faculty $faculty)
     {
-        $faculty->load('user', 'department', 'degreePrograms', 'advisees');
+        if(!auth()->user()->can(PermissionEnum::VIEW_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to view faculty.', 'forbidden');
+        } else if (
+            !auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+            && $faculty->role_type === 'administrator') {
+            return $this->error(403, 'You do not have permission to view administrators.', 'forbidden');
+        } else if (
+            !auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+            && $faculty->role_type === 'instructor') {
+            return $this->error(403, 'You do not have permission to view instructors.', 'forbidden');
+        } else if (
+            !auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+            && $faculty->role_type === 'staff') {
+            return $this->error(403, 'You do not have permission to view staff.', 'forbidden');
+        }
+
+        $faculty->load('user', 'department', 'degreePrograms');
+        if($faculty->role_type === 'instructor') {
+            $faculty->load('advisees');
+        }
 
         return $this->response(data: FacultyResource::make($faculty));
     }
