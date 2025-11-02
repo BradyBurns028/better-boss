@@ -182,6 +182,6 @@ class FacultyController extends AbstractController
         $faculty->user->delete();
         $faculty->delete();
 
-        return $this->response(APIResponse::make()->withCode(200));
+        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
     }
 }

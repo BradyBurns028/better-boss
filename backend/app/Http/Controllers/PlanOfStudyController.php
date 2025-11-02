@@ -124,6 +124,6 @@ class PlanOfStudyController extends AbstractController
 
         $planOfStudy->delete();
 
-        return $this->response(ApiResponse::make()->withCode(200));
+        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
     }
 }
