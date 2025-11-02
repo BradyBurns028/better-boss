@@ -64,7 +64,9 @@ class DepartmentController extends AbstractController
      */
     public function store(StoreDepartmentRequest $request)
     {
-        $this->authorize(PermissionEnum::CREATE_DEPARTMENTS->value);
+        if(!auth()->user()->can(PermissionEnum::CREATE_DEPARTMENTS->value)) {
+            return $this->error(403, 'You do not have permission to create departments.', 'forbidden');
+        }
 
         $data = $request->validated();
 
@@ -82,7 +84,9 @@ class DepartmentController extends AbstractController
      */
     public function show(Department $department)
     {
-        $this->authorize(PermissionEnum::VIEW_DEPARTMENTS->value);
+        if(!auth()->user()->can(PermissionEnum::VIEW_DEPARTMENTS->value)) {
+            return $this->error(403, 'You do not have permission to view departments.', 'forbidden');
+        }
 
         $department->load(['organization', 'degreePrograms', 'faculty', 'departmentChair']);
 
@@ -94,7 +98,9 @@ class DepartmentController extends AbstractController
      */
     public function update(UpdateDepartmentRequest $request, Department $department)
     {
-        $this->authorize(PermissionEnum::EDIT_DEPARTMENTS->value);
+        if(!auth()->user()->can(PermissionEnum::EDIT_DEPARTMENTS->value)) {
+            return $this->error(403, 'You do not have permission to update departments.', 'forbidden');
+        }
 
         $data = $request->validated();
 

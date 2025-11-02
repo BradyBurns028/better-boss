@@ -67,7 +67,9 @@ class OrganizationController extends AbstractController
      */
     public function store(StoreOrganizationRequest $request)
     {
-        $this->authorize(PermissionEnum::CREATE_ORGANIZATIONS->value);
+        if(!auth()->user()->can(PermissionEnum::CREATE_ORGANIZATIONS->value)) {
+            return $this->error(403, 'You do not have permission to create organizations.', 'forbidden');
+        }
 
         $data = $request->validated();
 
@@ -86,7 +88,9 @@ class OrganizationController extends AbstractController
      */
     public function show(Organization $organization)
     {
-        $this->authorize(PermissionEnum::VIEW_ORGANIZATIONS->value);
+        if(!auth()->user()->can(PermissionEnum::VIEW_ORGANIZATIONS->value)) {
+            return $this->error(403, 'You do not have permission to view organizations.', 'forbidden');
+        }
 
         $organization->load('admin', 'user', 'departments');
 
@@ -98,7 +102,9 @@ class OrganizationController extends AbstractController
      */
     public function update(UpdateOrganizationRequest $request, Organization $organization)
     {
-        $this->authorize(PermissionEnum::EDIT_ORGANIZATIONS->value);
+        if(!auth()->user()->can(PermissionEnum::EDIT_ORGANIZATIONS->value)) {
+            return $this->error(403, 'You do not have permission to update organizations.', 'forbidden');
+        }
 
         $data = $request->validated();
 

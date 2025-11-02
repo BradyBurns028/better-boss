@@ -64,7 +64,9 @@ class DegreeProgramController extends AbstractController
      */
     public function store(StoreDegreeProgramRequest $request)
     {
-        $this->authorize(PermissionEnum::CREATE_DEGREE_PROGRAMS->value);
+        if(!auth()->user()->can(PermissionEnum::CREATE_DEGREE_PROGRAMS->value)) {
+            return $this->error(403, 'You do not have permission to create degree programs.', 'forbidden');
+        }
 
         $data = $request->validated();
 
@@ -82,7 +84,9 @@ class DegreeProgramController extends AbstractController
      */
     public function show(DegreeProgram $degreeProgram)
     {
-        $this->authorize(PermissionEnum::VIEW_DEGREE_PROGRAMS->value);
+        if(!auth()->user()->can(PermissionEnum::VIEW_DEGREE_PROGRAMS->value)) {
+            return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
+        }
 
         $degreeProgram->load(['department', 'programChair', 'students']);
 
@@ -94,7 +98,9 @@ class DegreeProgramController extends AbstractController
      */
     public function update(UpdateDegreeProgramRequest $request, DegreeProgram $degreeProgram)
     {
-        $this->authorize(PermissionEnum::EDIT_DEGREE_PROGRAMS->value);
+        if(!auth()->user()->can(PermissionEnum::EDIT_DEGREE_PROGRAMS->value)) {
+            return $this->error(403, 'You do not have permission to edit degree programs.', 'forbidden');
+        }
 
         $data = $request->validated();
 

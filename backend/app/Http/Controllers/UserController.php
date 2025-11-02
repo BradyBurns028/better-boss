@@ -71,7 +71,11 @@ class UserController extends AbstractController
      */
     public function store(StoreUserRequest $request)
     {
-        $this->authorize(PermissionEnum::CREATE_USERS->value);
+        //$this->authorize(PermissionEnum::CREATE_USERS->value);
+
+        if(!auth()->user()->can(PermissionEnum::CREATE_USERS->value)) {
+            return $this->error(403, 'You do not have permission to create users.', 'forbidden');
+        }
 
         $data = $request->validated();
 
@@ -93,7 +97,9 @@ class UserController extends AbstractController
      */
     public function show(User $user)
     {
-        $this->authorize(PermissionEnum::VIEW_USERS->value);
+        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)) {
+            return $this->error(403, 'You do not have permission to view users.', 'forbidden');
+        }
 
         $user->load(['admins', 'organizations', 'students', 'faculties']);
 
@@ -105,7 +111,9 @@ class UserController extends AbstractController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $this->authorize(PermissionEnum::EDIT_USERS->value);
+        if(!auth()->user()->can(PermissionEnum::EDIT_USERS->value)) {
+            return $this->error(403, 'You do not have permission to edit users.', 'forbidden');
+        }
 
         $data = $request->validated();
 

@@ -66,7 +66,9 @@ class FacultyController extends AbstractController
      */
     public function store(StoreFacultyRequest $request)
     {
-        $this->authorize(PermissionEnum::CREATE_FACULTY->value);
+        if(!auth()->user()->can(PermissionEnum::CREATE_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to create faculty.', 'forbidden');
+        }
 
         $data = $request->validated();
 
@@ -106,7 +108,9 @@ class FacultyController extends AbstractController
      */
     public function update(UpdateFacultyRequest $request, Faculty $faculty)
     {
-        $this->authorize(PermissionEnum::EDIT_FACULTY->value);
+        if(!auth()->user()->can(PermissionEnum::EDIT_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to update faculty.', 'forbidden');
+        }
 
         $data = $request->validate([
             'first_name' => 'sometimes|required|string|max:255',
