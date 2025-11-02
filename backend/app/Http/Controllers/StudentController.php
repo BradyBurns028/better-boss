@@ -105,11 +105,11 @@ class StudentController extends AbstractController
      * Display the specified resource.
      */
     public function show(Student $student): Response {
-        if(
-            !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
-            || !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
-                && ($student->faculty_id === auth()->user()->faculty_id))
-        ) {
+        if((auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
+            && !($student->faculty_id === auth()->user()->faculty_id))){
+            return $this->error(403, 'You do not have permission to view this student because you do not advise them.', 'forbidden');
+
+        } else if( !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))) {
             return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
         }
 

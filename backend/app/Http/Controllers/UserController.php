@@ -114,8 +114,23 @@ class UserController extends AbstractController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+
         if(!auth()->user()->can(PermissionEnum::EDIT_USERS->value)) {
-            return $this->error(403, 'You do not have permission to edit users.', 'forbidden');
+            // Allow only password changes for the authenticated user
+            if (auth()->user()->id !== $user->id) {
+                return $this->error(403, 'You do not have permission to edit this user.', 'forbidden');
+            }
+
+            $data = $request->only(['password']);
+
+            if (empty($data['password'])) {
+                return $this->error(400, 'Password is required.', 'bad_request');
+            }
+
+            $user->password = bcrypt($data['password']);
+            $user->save();
+
+            return $this->response(data: UserResource::make($user));
         }
 
         $data = $request->validated();
@@ -124,7 +139,7 @@ class UserController extends AbstractController
         if (!empty($data['password'])) {
             $data['password'] = bcrypt($data['password']);
         } else {
-            unset($data['password']);
+            return $this->error(400, 'Password is required.', 'bad_request');
         }
 
         // Mass assign allowed fields

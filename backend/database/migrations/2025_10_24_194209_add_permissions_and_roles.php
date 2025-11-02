@@ -144,7 +144,7 @@ return new class extends Migration
                 'view_courses',
                 'view_course_sections',
                 'view_enrolled_students',
-                'index_plans_of_study'
+                'view_plans_of_study'
             ])->get(),
             'student' => Permission::whereIn('name', [
                 'view_instructors',
