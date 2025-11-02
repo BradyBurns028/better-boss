@@ -23,6 +23,12 @@ class StudentController extends AbstractController
     {
         $query = Student::query();
 
+        if(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)) {
+            $query->where('faculty_id', auth()->user()->faculty_id);
+        } else if(!auth()->user()->can(PermissionEnum::VIEW_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to view students.', 'forbidden');
+        }
+
         // Includes (support nested degreeProgram.department)
         $allowedIncludes = ['user', 'faculty', 'degreeProgram', 'degreeProgram.department'];
         $includes = array_filter(explode(',', (string) $request->query('include', '')));
@@ -98,13 +104,19 @@ class StudentController extends AbstractController
      * Display the specified resource.
      */
     public function show(Student $student): Response {
-        if(!auth()->user()->can(PermissionEnum::VIEW_STUDENTS->value)) {
+        if(
+            !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
+            || !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
+                && ($student->faculty_id === auth()->user()->faculty_id))
+        ) {
             return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
         }
 
         $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
 
+
         return $this->response(StudentResource::make($student));
+
     }
 
     /**

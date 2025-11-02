@@ -19,6 +19,10 @@ class PlanOfStudyController extends AbstractController
     {
         $query = PlanOfStudy::query();
 
+        if(!auth()->user()->can(PermissionEnum::VIEW_PLANS_OF_STUDY->value)) {
+            return $this->error(403, 'You do not have permission to view plans of study.', 'forbidden');
+        }
+
         // Includes (supports nested include degreeProgram.department)
         $allowedIncludes = ['degreeProgram', 'degreeProgram.department', 'student', 'courses', 'sections'];
         $includes = array_filter(explode(',', (string) $request->query('include', '')));

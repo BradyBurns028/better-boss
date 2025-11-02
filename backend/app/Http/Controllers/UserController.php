@@ -24,6 +24,10 @@ class UserController extends AbstractController
      */
     public function index(Request $request)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)) {
+            return $this->error(403, 'You do not have permission to view users.', 'forbidden');
+        }
+
         $query = User::query();
 
         // Includes
@@ -71,8 +75,6 @@ class UserController extends AbstractController
      */
     public function store(StoreUserRequest $request)
     {
-        //$this->authorize(PermissionEnum::CREATE_USERS->value);
-
         if(!auth()->user()->can(PermissionEnum::CREATE_USERS->value)) {
             return $this->error(403, 'You do not have permission to create users.', 'forbidden');
         }

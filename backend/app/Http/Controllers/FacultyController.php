@@ -21,6 +21,29 @@ class FacultyController extends AbstractController
     {
         $query = Faculty::query();
 
+        if(auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+        ) {
+            $query->where('role_type', 'instructor');
+
+        } else if(auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+        ) {
+            $query->where('role_type', 'staff');
+
+        } else if(
+            auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+        ) {
+            $query->where('role_type', 'administrator');
+
+        } else if(!auth()->user()->can(PermissionEnum::VIEW_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to view faculty.', 'forbidden');
+        }
+
         // Includes
         $allowedIncludes = ['user', 'department', 'degreePrograms', 'advisees'];
         $includes = array_filter(explode(',', (string) $request->query('include', '')));
@@ -98,28 +121,24 @@ class FacultyController extends AbstractController
      */
     public function show(Faculty $faculty)
     {
-        if(!auth()->user()->can(PermissionEnum::VIEW_FACULTY->value)) {
-            return $this->error(403, 'You do not have permission to view faculty.', 'forbidden');
-        } else if (
-            !auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
-            && $faculty->role_type === 'administrator') {
-            return $this->error(403, 'You do not have permission to view administrators.', 'forbidden');
-        } else if (
-            !auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
-            && $faculty->role_type === 'instructor') {
-            return $this->error(403, 'You do not have permission to view instructors.', 'forbidden');
-        } else if (
-            !auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
-            && $faculty->role_type === 'staff') {
-            return $this->error(403, 'You do not have permission to view staff.', 'forbidden');
+        if(
+            !(auth()->user()->can(PermissionEnum::VIEW_FACULTY->value))
+            || !(auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+                && $faculty->role_type === 'administrator')
+            || !(auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+                && $faculty->role_type === 'instructor')
+            || !(auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+                && $faculty->role_type === 'staff')
+        ) {
+            return $this->error(403, 'You do not have permission to view this faculty.', 'forbidden');
         }
 
         $faculty->load('user', 'department', 'degreePrograms');
-        if($faculty->role_type === 'instructor') {
-            $faculty->load('advisees');
-        }
+            if($faculty->role_type === 'instructor') {
+                $faculty->load('advisees');
+            }
 
-        return $this->response(data: FacultyResource::make($faculty));
+            return $this->response(data: FacultyResource::make($faculty));
     }
 
     /**
