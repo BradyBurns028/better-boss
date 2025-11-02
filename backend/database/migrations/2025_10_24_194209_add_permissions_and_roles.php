@@ -43,6 +43,7 @@ return new class extends Migration
             'view_administrators',
             'view_instructors',
             'view_staff',
+            'delete_faculty',
 
             // Departments
             'view_departments',
@@ -106,6 +107,7 @@ return new class extends Migration
                 'view_faculty_details',
                 'create_faculty',
                 'edit_faculty',
+                'delete_faculty',
                 'view_departments',
                 'create_departments',
                 'edit_departments',
@@ -207,6 +209,7 @@ return new class extends Migration
             'view_administrators',
             'view_instructors',
             'view_staff',
+            'delete_faculty',
 
             // Departments
             'view_departments',
