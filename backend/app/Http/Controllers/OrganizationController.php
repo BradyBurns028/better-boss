@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Http\Filters\OrganizationFilter;
@@ -123,6 +124,12 @@ class OrganizationController extends AbstractController
      */
     public function destroy(Organization $organization)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_ORGANIZATIONS->value)) {
+            return $this->error(403, 'You do not have permission to delete organizations.', 'forbidden');
+        }
+
+        $organization->delete();
+
+        return $this->response(ApiResponse::make()->withCode(200));
     }
 }

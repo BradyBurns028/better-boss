@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\DegreeProgram;
 use Illuminate\Http\Request;
 use App\Http\Filters\DegreeProgramFilter;
@@ -118,6 +119,12 @@ class DegreeProgramController extends AbstractController
      */
     public function destroy(DegreeProgram $degreeProgram)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_DEGREE_PROGRAMS->value)) {
+            return $this->error(403, 'You do not have permission to delete degree programs.', 'forbidden');
+        }
+
+        $degreeProgram->delete();
+
+        return $this->response(ApiResponse::make()->withCode(200));
     }
 }

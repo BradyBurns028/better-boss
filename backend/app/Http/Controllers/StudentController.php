@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use app\Enums\PermissionEnum;
+use App\Http\Responses\ApiResponse;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
@@ -144,6 +145,12 @@ class StudentController extends AbstractController
      */
     public function destroy(Student $student)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to delete this student.', 'forbidden');
+        }
+
+        $student->delete();
+
+        return $this->response(ApiResponse::make()->withCode(200));
     }
 }

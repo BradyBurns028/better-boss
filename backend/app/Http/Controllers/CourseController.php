@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use app\Enums\PermissionEnum;
+use App\Http\Responses\ApiResponse;
 use App\Models\Courses\Course;
 use Illuminate\Http\Request;
 use App\Http\Resources\CourseResource;
@@ -121,6 +122,12 @@ class CourseController extends AbstractController
      */
     public function destroy(Course $course)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_COURSES->value)){
+            return $this->error(403, 'You do not have permission to delete courses.', 'forbidden');
+        }
+
+        $course->delete();
+
+        return $this->response(ApiResponse::make()->withCode(200));
     }
 }

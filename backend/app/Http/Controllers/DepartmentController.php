@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Http\Filters\DepartmentFilter;
@@ -118,6 +119,12 @@ class DepartmentController extends AbstractController
      */
     public function destroy(Department $department)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_DEPARTMENTS->value)) {
+            return $this->error(403, 'You do not have permission to delete departments.', 'forbidden');
+        }
+
+        $department->delete();
+
+        return $this->response(ApiResponse::make()->withCode(200));
     }
 }

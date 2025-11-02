@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Faculty;
 use Illuminate\Http\Request;
 use App\Http\Filters\FacultyFilter;
@@ -174,6 +175,13 @@ class FacultyController extends AbstractController
      */
     public function destroy(Faculty $faculty)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to delete faculty.', 'forbidden');
+        }
+
+        $faculty->user->delete();
+        $faculty->delete();
+
+        return $this->response(APIResponse::make()->withCode(200));
     }
 }

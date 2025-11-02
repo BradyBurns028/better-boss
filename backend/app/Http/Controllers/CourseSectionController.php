@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use app\Enums\PermissionEnum;
+use App\Http\Responses\ApiResponse;
 use App\Models\Courses\CourseSection;
 use Illuminate\Http\Request;
 use App\Http\Resources\CourseSectionResource;
@@ -123,6 +124,12 @@ class CourseSectionController extends AbstractController
      */
     public function destroy(CourseSection $courseSection)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_COURSE_SECTIONS)) {
+            return $this->error(403, 'You do not have permission to delete course sections.', 'forbidden');
+        }
+
+        $courseSection->delete();
+
+        return $this->response(ApiResponse::make()->withCode(200));
     }
 }

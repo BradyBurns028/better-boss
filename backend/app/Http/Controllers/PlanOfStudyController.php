@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Courses\PlanOfStudy;
 use Illuminate\Http\Request;
 use App\Http\Resources\PlanOfStudyResource;
@@ -117,6 +118,12 @@ class PlanOfStudyController extends AbstractController
      */
     public function destroy(PlanOfStudy $planOfStudy)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_PLANS_OF_STUDY->value)) {
+            return $this->error(403, 'You do not have permission to delete this plan of study.', 'forbidden');
+        }
+
+        $planOfStudy->delete();
+
+        return $this->response(ApiResponse::make()->withCode(200));
     }
 }

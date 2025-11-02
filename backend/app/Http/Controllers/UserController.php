@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -140,6 +141,12 @@ class UserController extends AbstractController
      */
     public function destroy(User $user)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_USERS->value)) {
+            return $this->error(403, 'You do not have permission to delete users.', 'forbidden');
+        }
+
+        $user->delete();
+
+        return $this->response(ApiResponse::make()->withCode(200));
     }
 }
