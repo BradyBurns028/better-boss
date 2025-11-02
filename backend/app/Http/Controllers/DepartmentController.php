@@ -17,6 +17,10 @@ class DepartmentController extends AbstractController
      */
     public function index(Request $request)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_DEPARTMENTS->value)){
+            return $this->error(403, 'You do not have permission to view all departments.', 'forbidden');
+        }
+
         $query = Department::query();
 
         // Includes

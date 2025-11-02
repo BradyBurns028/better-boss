@@ -17,6 +17,10 @@ class DegreeProgramController extends AbstractController
      */
     public function index(Request $request)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_DEGREE_PROGRAMS->value)){
+            return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
+        }
+
         $query = DegreeProgram::query();
 
         // Includes

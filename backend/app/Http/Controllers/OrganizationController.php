@@ -20,6 +20,10 @@ class OrganizationController extends AbstractController
      */
     public function index(Request $request)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_ORGANIZATIONS->value)){
+            return $this->error(403, 'You do not have permission to view all organizations.', 'forbidden');
+        }
+
         $query = Organization::query();
 
         // Includes
