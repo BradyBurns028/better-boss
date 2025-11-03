@@ -125,6 +125,6 @@ class DepartmentController extends AbstractController
 
         $department->delete();
 
-        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
+        return $this->response(data: ['status' => 200, 'message' => 'Department deleted successfully.']);
     }
 }
