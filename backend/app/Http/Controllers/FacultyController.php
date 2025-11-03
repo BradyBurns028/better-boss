@@ -124,11 +124,11 @@ class FacultyController extends AbstractController
     {
         if(
             !(auth()->user()->can(PermissionEnum::VIEW_FACULTY->value))
-            || !(auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+            && !(auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
                 && $faculty->role_type === 'administrator')
-            || !(auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+            && !(auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
                 && $faculty->role_type === 'instructor')
-            || !(auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+            && !(auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
                 && $faculty->role_type === 'staff')
         ) {
             return $this->error(403, 'You do not have permission to view this faculty.', 'forbidden');

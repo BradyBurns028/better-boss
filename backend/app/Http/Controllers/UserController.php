@@ -139,7 +139,7 @@ class UserController extends AbstractController
         if (!empty($data['password'])) {
             $data['password'] = bcrypt($data['password']);
         } else {
-            return $this->error(400, 'Password is required.', 'bad_request');
+            unset($data['password']);
         }
 
         // Mass assign allowed fields

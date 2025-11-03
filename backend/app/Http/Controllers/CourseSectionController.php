@@ -69,7 +69,7 @@ class CourseSectionController extends AbstractController
      */
     public function store(StoreCourseSectionRequest $request)
     {
-        if(!auth()->user()->can(PermissionEnum::CREATE_COURSE_SECTIONS)) {
+        if(!auth()->user()->can(PermissionEnum::CREATE_COURSE_SECTIONS->value)) {
             return $this->error(403, 'You do not have permission to create course sections.', 'forbidden');
         }
 
@@ -124,7 +124,7 @@ class CourseSectionController extends AbstractController
      */
     public function destroy(CourseSection $courseSection)
     {
-        if(!auth()->user()->can(PermissionEnum::DELETE_COURSE_SECTIONS)) {
+        if(!auth()->user()->can(PermissionEnum::DELETE_COURSE_SECTIONS->value)) {
             return $this->error(403, 'You do not have permission to delete course sections.', 'forbidden');
         }
 

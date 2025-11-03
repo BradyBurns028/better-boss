@@ -99,7 +99,7 @@ class PlanOfStudyController extends AbstractController
     public function show(PlanOfStudy $planOfStudy)
     {
         if(!auth()->user()->can(PermissionEnum::VIEW_PLANS_OF_STUDY->value)
-            || !auth()->user() == $planOfStudy->student->user) {
+            || !(auth()->user() == $planOfStudy->student->user)) {
             return $this->error(403, 'You do not have permission to view this plan of study.', 'forbidden');
 
         } else if (auth()->user()->user_type === 'faculty'
@@ -121,7 +121,7 @@ class PlanOfStudyController extends AbstractController
     {
         $user = auth()->user();
 
-        if(!$user == $planOfStudy->student->user
+        if(!($user == $planOfStudy->student->user)
             || !$user->can(PermissionEnum::EDIT_PLANS_OF_STUDY->value)) {
 
             return $this->error(403, 'You do not have permission to update this plan of study.', 'forbidden');
@@ -142,13 +142,13 @@ class PlanOfStudyController extends AbstractController
         $user = auth()->user();
 
         if(!$user->can(PermissionEnum::DELETE_PLANS_OF_STUDY->value)
-            || !$user == $planOfStudy-> student->user) {
+            || !($user == $planOfStudy->student->user)) {
 
             return $this->error(403, 'You do not have permission to delete this plan of study.', 'forbidden');
         }
 
         $planOfStudy->delete();
 
-        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
+        return $this->response(data: ['status' => 200, 'message' => 'Plan of study deleted successfully.']);
     }
 }

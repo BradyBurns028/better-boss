@@ -25,6 +25,9 @@ class StudentController extends AbstractController
         $query = Student::query();
 
         if(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)) {
+            if (is_null(auth()->user()->faculty_id)) {
+                return $this->error(404, 'Faculty ID not found.', 'forbidden');
+            }
             $query->where('faculty_id', auth()->user()->faculty_id);
         } else if(!auth()->user()->can(PermissionEnum::VIEW_STUDENTS->value)) {
             return $this->error(403, 'You do not have permission to view students.', 'forbidden');
@@ -76,7 +79,7 @@ class StudentController extends AbstractController
     public function store(StoreStudentRequest $request)
     {
         if(!auth()->user()->can(PermissionEnum::CREATE_STUDENTS->value)) {
-            return $this->error(403, 'You do not have permission to create student.', 'forbidden');
+            return $this->error(403, 'You do not have permission to create students.', 'forbidden');
         }
 
         $data = $request->validated();
@@ -105,11 +108,14 @@ class StudentController extends AbstractController
      * Display the specified resource.
      */
     public function show(Student $student): Response {
+
         if((auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
             && !($student->faculty_id === auth()->user()->faculty_id))){
             return $this->error(403, 'You do not have permission to view this student because you do not advise them.', 'forbidden');
 
-        } else if( !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))) {
+        } else if( !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
+        && !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value))
+        ) {
             return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
         }
 
