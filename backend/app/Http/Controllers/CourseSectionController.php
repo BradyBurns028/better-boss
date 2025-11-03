@@ -108,7 +108,7 @@ class CourseSectionController extends AbstractController
      */
     public function update(UpdateCourseSectionRequest $request, CourseSection $courseSection)
     {
-        if(!auth()->user()->can(PermissionEnum::EDIT_COURSE_SECTIONS)) {
+        if(!auth()->user()->can(PermissionEnum::EDIT_COURSE_SECTIONS->value)) {
             return $this->error(403, 'You do not have permission to edit course sections.', 'forbidden');
         }
 
