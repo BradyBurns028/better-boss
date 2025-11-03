@@ -35,11 +35,7 @@ class StudentController extends AbstractController
 
         // Includes (support nested degreeProgram.department)
         $allowedIncludes = ['user', 'faculty', 'degreeProgram', 'degreeProgram.department'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
+        $query->with($allowedIncludes);
 
         // Filters
         (new StudentFilter())->apply($request, $query);

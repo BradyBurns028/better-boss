@@ -17,6 +17,7 @@ use App\Models\Student;
 use App\Models\Faculty;
 use Illuminate\Support\Facades\Log;
 use App\Http\Filters\UserFilter;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
@@ -31,13 +32,11 @@ class UserController extends AbstractController
 
         $query = User::query();
 
-        // Includes
-        $allowedIncludes = ['admins', 'organizations', 'students', 'faculties'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
+        $query->with([
+            'admins',
+            'students.degreeProgram.department.organization',
+            'faculties.department.organization',
+        ]);
 
         // Filters
         (new UserFilter())->apply($request, $query);
