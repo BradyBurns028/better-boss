@@ -70,7 +70,7 @@ class CourseSectionController extends AbstractController
     public function store(StoreCourseSectionRequest $request)
     {
         if(!auth()->user()->can(PermissionEnum::CREATE_COURSE_SECTIONS)) {
-            return $this->error(403, 'You do not have permission to create courses.', 'forbidden');
+            return $this->error(403, 'You do not have permission to create course sections.', 'forbidden');
         }
 
         $data = $request->validated();
