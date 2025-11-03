@@ -35,6 +35,12 @@ export class AuthenticationApi extends BaseApi<never, {}> {
             apiService.post<string>(`${this.resource}logout`, {}),
         )
     }
+
+    async me(): Promise<User | null> {
+        return this.unwrap<User>(
+            apiService.get<User>(`${this.resource}me`, {}),
+        )
+    }
 }
 
 export const authenticationApi = new AuthenticationApi()

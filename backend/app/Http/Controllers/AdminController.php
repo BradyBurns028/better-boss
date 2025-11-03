@@ -5,30 +5,67 @@ namespace App\Http\Controllers;
 use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Filters\AdminFilter;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\AdminResource;
+use App\Http\Requests\StoreAdminRequest;
+use App\Http\Requests\UpdateAdminRequest;
 
 class AdminController extends AbstractController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Admin::query();
+
+        // Includes
+        $allowedIncludes = ['user', 'organizations'];
+        $includes = array_filter(explode(',', (string) $request->query('include', '')));
+        $includes = array_values(array_intersect($allowedIncludes, $includes));
+        if (!empty($includes)) {
+            $query->with($includes);
+        }
+
+        // Filters
+        (new AdminFilter())->apply($request, $query);
+
+        // Sorting
+        $allowedSorts = ['id', 'user_id', 'created_at'];
+        $sort = (string) $request->query('sort', 'id');
+        $direction = 'asc';
+        if (str_starts_with($sort, '-')) {
+            $direction = 'desc';
+            $sort = substr($sort, 1);
+        }
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'id';
+        }
+        $query->orderBy($sort, $direction);
+
+        // Pagination
+        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+        $paginator = $query->paginate($perPage)->appends($request->query());
+
+        $data = AdminResource::collection($paginator->items());
+        $meta = [
+            'page' => $paginator->currentPage(),
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'current_page' => $paginator->currentPage(),
+        ];
+
+        return $this->response($data, $meta);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAdminRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $data = $request->validated();
 
         // Create the user
         $user = User::create([
@@ -36,6 +73,8 @@ class AdminController extends AbstractController
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            // ensure user_type is set (DB requires NOT NULL)
+            'user_type' => $data['user_type'] ?? 'admin',
         ]);
 
         // Create the admin record linked to the user
@@ -62,21 +101,11 @@ class AdminController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Admin $admin)
+    public function update(UpdateAdminRequest $request, Admin $admin)
     {
-        $data = $request->validate([
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $admin->user_id,
-            'password' => 'sometimes|nullable|string|min:8|confirmed',
-        ]);
+        $data = $request->validated();
 
         $user = $admin->user;
-
-        if (isset($data['first_name'])) $user->first_name = $data['first_name'];
-        if (isset($data['last_name']))  $user->last_name = $data['last_name'];
-        if (isset($data['email'])) $user->email = $data['email'];
-        if (!empty($data['password'])) $user->password = bcrypt($data['password']);
 
         $user->save();
 
@@ -88,6 +117,8 @@ class AdminController extends AbstractController
      */
     public function destroy(Admin $admin)
     {
-        //
+        $admin->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Admin deleted successfully.']);
     }
 }

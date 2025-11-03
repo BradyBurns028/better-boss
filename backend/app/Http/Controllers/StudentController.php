@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use app\Enums\PermissionEnum;
+use App\Http\Responses\ApiResponse;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
@@ -9,36 +11,81 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\StudentResource;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\StoreStudentRequest;
+use App\Http\Requests\UpdateStudentRequest;
+use App\Http\Filters\StudentFilter;
 
 class StudentController extends AbstractController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Student::query();
+
+        if(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)) {
+            if (is_null(auth()->user()->faculty_id)) {
+                return $this->error(404, 'Faculty ID not found.', 'forbidden');
+            }
+            $query->where('faculty_id', auth()->user()->faculty_id);
+        } else if(!auth()->user()->can(PermissionEnum::VIEW_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to view students.', 'forbidden');
+        }
+
+        // Includes (support nested degreeProgram.department)
+        $allowedIncludes = ['user', 'faculty', 'degreeProgram', 'degreeProgram.department'];
+        $query->with($allowedIncludes);
+
+        // Filters
+        (new StudentFilter())->apply($request, $query);
+
+        // Sorting
+        $allowedSorts = ['id', 'degree_program', 'faculty_id', 'created_at'];
+        $sort = (string) $request->query('sort', 'id');
+        $direction = 'asc';
+        if (str_starts_with($sort, '-')) {
+            $direction = 'desc';
+            $sort = substr($sort, 1);
+        }
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'id';
+        }
+        $query->orderBy($sort, $direction);
+
+        // Pagination
+        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+        $paginator = $query->paginate($perPage)->appends($request->query());
+
+        $data = StudentResource::collection($paginator->items());
+        $meta = [
+            'page' => $paginator->currentPage(),
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'current_page' => $paginator->currentPage(),
+        ];
+
+        return $this->response($data, $meta);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreStudentRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'degree_program' => 'required|integer|exists:degree_programs,id',
-            'faculty_id' => 'nullable|integer|exists:faculties,id',
-        ]);
+        if(!auth()->user()->can(PermissionEnum::CREATE_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to create students.', 'forbidden');
+        }
+
+        $data = $request->validated();
 
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'user_type' => $data['user_type'] ?? 'student',
         ]);
 
         $student = Student::create([
@@ -57,36 +104,38 @@ class StudentController extends AbstractController
      * Display the specified resource.
      */
     public function show(Student $student): Response {
+
+        if((auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
+            && !($student->faculty_id === auth()->user()->faculty_id))){
+            return $this->error(403, 'You do not have permission to view this student because you do not advise them.', 'forbidden');
+
+        } else if( !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
+        && !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value))
+        ) {
+            return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
+        }
+
         $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
 
+
         return $this->response(StudentResource::make($student));
+
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Student $student)
+    public function update(UpdateStudentRequest $request, Student $student)
     {
-        $data = $request->validate([
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $student->user_id,
-            'password' => 'sometimes|nullable|string|min:8|confirmed',
-            'degree_program' => 'sometimes|required|integer|exists:degree_programs,id',
-            'faculty_id' => 'sometimes|nullable|integer|exists:faculties,id',
-        ]);
+        if(!auth()->user()->can(PermissionEnum::EDIT_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to update this student.', 'forbidden');
+        }
+
+        $data = $request->validated();
 
         $user = $student->user;
 
-        if (isset($data['first_name'])) $user->first_name = $data['first_name'];
-        if (isset($data['last_name'])) $user->last_name = $data['last_name'];
-        if (isset($data['email'])) $user->email = $data['email'];
-        if (!empty($data['password'])) $user->password = Hash::make($data['password']);
-
         $user->save();
-
-        if (isset($data['degree_program'])) $student->degree_program = $data['degree_program'];
-        if (array_key_exists('faculty_id', $data)) $student->faculty_id = $data['faculty_id'];
 
         $student->save();
 
@@ -98,6 +147,12 @@ class StudentController extends AbstractController
      */
     public function destroy(Student $student)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to delete this student.', 'forbidden');
+        }
+
+        $student->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
     }
 }

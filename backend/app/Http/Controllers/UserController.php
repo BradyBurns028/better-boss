@@ -2,35 +2,84 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 
 use App\Http\Resources\UserResource;
+use App\Models\Admin;
+use App\Enums\UserType;
+use App\Enums\PermissionEnum;
+use App\Models\Student;
+use App\Models\Faculty;
 use Illuminate\Support\Facades\Log;
+use App\Http\Filters\UserFilter;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)) {
+            return $this->error(403, 'You do not have permission to view users.', 'forbidden');
+        }
+
+        $query = User::query();
+
+        $query->with([
+            'admins',
+            'students.degreeProgram.department.organization',
+            'faculties.department.organization',
+        ]);
+
+        // Filters
+        (new UserFilter())->apply($request, $query);
+
+        // Sorting
+        $allowedSorts = ['id', 'last_name', 'first_name', 'email', 'created_at'];
+        $sort = (string) $request->query('sort', 'last_name');
+        $direction = 'asc';
+        if (str_starts_with($sort, '-')) {
+            $direction = 'desc';
+            $sort = substr($sort, 1);
+        }
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'last_name';
+        }
+        $query->orderBy($sort, $direction);
+
+        // Pagination
+        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+        $paginator = $query->paginate($perPage)->appends($request->query());
+
+        $data = UserResource::collection($paginator->items());
+        $meta = [
+            'page' => $paginator->currentPage(),
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'current_page' => $paginator->currentPage(),
+        ];
+
+        return $this->response($data, $meta);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $data = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'user_type' => 'sometimes|nullable|string',
-        ]);
+        if(!auth()->user()->can(PermissionEnum::CREATE_USERS->value)) {
+            return $this->error(403, 'You do not have permission to create users.', 'forbidden');
+        }
+
+        $data = $request->validated();
 
         $user = User::create([
             'first_name' => $data['first_name'],
@@ -40,8 +89,9 @@ class UserController extends AbstractController
             'user_type' => $data['user_type'] ?? null,
         ]);
 
+        $user->load(['admins', 'organizations', 'students', 'faculties']);
 
-        return $this->response($user);
+        return $this->response(data: UserResource::make($user));
     }
 
     /**
@@ -49,6 +99,10 @@ class UserController extends AbstractController
      */
     public function show(User $user)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)) {
+            return $this->error(403, 'You do not have permission to view users.', 'forbidden');
+        }
+
         $user->load(['admins', 'organizations', 'students', 'faculties']);
 
         return $this->response(data: UserResource::make($user));
@@ -57,25 +111,43 @@ class UserController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $data = $request->validate([
-            'first_name' => 'sometimes|required|string|max:255',
-            'last_name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
-            'password' => 'sometimes|nullable|string|min:8|confirmed',
-            'user_type' => 'sometimes|nullable|string',
-        ]);
 
-        if (isset($data['first_name'])) $user->first_name = $data['first_name'];
-        if (isset($data['last_name'])) $user->last_name = $data['last_name'];
-        if (isset($data['email'])) $user->email = $data['email'];
-        if (!empty($data['password'])) $user->password = bcrypt($data['password']);
-        if (array_key_exists('user_type', $data)) $user->user_type = $data['user_type'];
+        if(!auth()->user()->can(PermissionEnum::EDIT_USERS->value)) {
+            // Allow only password changes for the authenticated user
+            if (auth()->user()->id !== $user->id) {
+                return $this->error(403, 'You do not have permission to edit this user.', 'forbidden');
+            }
 
+            $data = $request->only(['password']);
+
+            if (empty($data['password'])) {
+                return $this->error(400, 'Password is required.', 'bad_request');
+            }
+
+            $user->password = bcrypt($data['password']);
+            $user->save();
+
+            return $this->response(data: UserResource::make($user));
+        }
+
+        $data = $request->validated();
+
+        // Handle password hashing if present
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        // Mass assign allowed fields
+        $user->fill($data);
         $user->save();
 
-        return $this->response($user);
+        $user = $user->fresh(['admins', 'organizations', 'students', 'faculties']);
+
+        return $this->response(data: UserResource::make($user));
     }
 
     /**
@@ -83,6 +155,12 @@ class UserController extends AbstractController
      */
     public function destroy(User $user)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_USERS->value)) {
+            return $this->error(403, 'You do not have permission to delete users.', 'forbidden');
+        }
+
+        $user->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'User deleted successfully.']);
     }
 }

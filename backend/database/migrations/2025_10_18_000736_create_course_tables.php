@@ -46,7 +46,7 @@ return new class extends Migration
             $table->foreignId('degree_program_id')->constrained('degree_programs');
             $table->foreignId('course_id')->constrained('courses');
             $table->primary(['degree_program_id', 'course_id']);
-            $table->integer('course_set'); //for courses that can subsitute each other
+            $table->integer('course_set')->nullable();
             $table->integer('minimum_grade');
         });
 

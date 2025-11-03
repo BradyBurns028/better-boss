@@ -6,8 +6,11 @@
 
 namespace App\Models;
 
+use App\Enums\FacultyRoleTypeEnum;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,7 +18,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Class Faculty
- * 
+ *
+ * @method static firstOrCreate(array $array)
+ *
  * @property int $id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -32,8 +37,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  *
  * @package App\Models
  */
-class Faculty extends Model
-{
+class Faculty extends Model {
+
+    use HasFactory;
 
 	protected $fillable = [
 		'user_id',
@@ -41,6 +47,10 @@ class Faculty extends Model
 		'role_type',
 		'department_id'
 	];
+
+    protected $casts = [
+        'role_type' => FacultyRoleTypeEnum::class,
+    ];
 
 	public function user(): BelongsTo
 	{
@@ -66,4 +76,8 @@ class Faculty extends Model
 	{
 		return $this->hasOne(Department::class, 'department_chair');
 	}
+
+    protected function organization(): Attribute {
+        return Attribute::get(fn () => $this->department?->organization);
+    }
 }
