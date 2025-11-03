@@ -25,12 +25,7 @@ class CourseController extends AbstractController
         $query = Course::query();
 
         // Includes
-        $allowedIncludes = ['department', 'prerequisite', 'dependents', 'sections', 'degreeRequirements', 'plans'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
+        $query->with(['department', 'prerequisite', 'dependents', 'sections', 'degreeRequirements', 'plans']);
 
         // Filters
         (new CourseFilter())->apply($request, $query);
