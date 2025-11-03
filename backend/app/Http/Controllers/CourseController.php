@@ -128,6 +128,6 @@ class CourseController extends AbstractController
 
         $course->delete();
 
-        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
+        return $this->response(data: ['status' => 200, 'message' => 'Course deleted successfully.']);
     }
 }
