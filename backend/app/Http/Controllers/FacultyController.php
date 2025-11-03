@@ -12,6 +12,7 @@ use App\Http\Resources\FacultyResource;
 use App\Http\Requests\StoreFacultyRequest;
 use App\Http\Requests\UpdateFacultyRequest;
 use App\Enums\PermissionEnum;
+use App\Traits\CheckSelfAccess;
 
 class FacultyController extends AbstractController
 {
@@ -130,6 +131,7 @@ class FacultyController extends AbstractController
                 && $faculty->role_type === 'instructor')
             && !(auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
                 && $faculty->role_type === 'staff')
+            && !$this->isSelf($faculty)
         ) {
             return $this->error(403, 'You do not have permission to view this faculty.', 'forbidden');
         }

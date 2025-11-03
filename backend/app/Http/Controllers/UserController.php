@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-
+use App\Traits\CheckSelfAccess;
 use App\Http\Resources\UserResource;
 use App\Models\Admin;
 use App\Enums\UserType;
@@ -99,7 +99,9 @@ class UserController extends AbstractController
      */
     public function show(User $user)
     {
-        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)) {
+        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)
+        && !$this->isself($user)
+        ) {
             return $this->error(403, 'You do not have permission to view users.', 'forbidden');
         }
 
