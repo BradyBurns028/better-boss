@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use app\Enums\PermissionEnum;
+use App\Enums\PermissionEnum;
 use App\Http\Responses\ApiResponse;
 use App\Models\Courses\Course;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\CourseResource;
 use App\Http\Requests\StoreCourseRequest;
@@ -16,26 +17,34 @@ class CourseController extends AbstractController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
+        $user = auth()->user();
+
         if(!auth()->user()->can(PermissionEnum::VIEW_COURSES->value)){
             return $this->error(403, 'You do not have permission to view courses.', 'forbidden');
         }
 
         $query = Course::query();
 
-        // Includes
-        $allowedIncludes = ['department', 'prerequisite', 'dependents', 'sections', 'degreeRequirements', 'plans'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
         if (!empty($includes)) {
-            $query->with($includes);
+            $query->with([
+                'department',
+                'prerequisite',
+                'dependents',
+                'sections',
+                'degreeRequirements',
+                'plans'
+            ]);
         }
 
-        // Filters
+        $orgId = $user?->organization?->id;
+
+        if ($orgId) {
+            $query->forOrganization($orgId);
+        }
+
         (new CourseFilter())->apply($request, $query);
 
-        // Sorting
         $allowedSorts = ['id', 'course_code', 'name', 'credits', 'department_id', 'created_at'];
         $sort = (string) $request->query('sort', 'course_code');
         $direction = 'asc';
@@ -48,7 +57,6 @@ class CourseController extends AbstractController
         }
         $query->orderBy($sort, $direction);
 
-        // Pagination
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
         $paginator = $query->paginate($perPage)->appends($request->query());
 
