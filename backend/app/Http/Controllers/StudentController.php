@@ -17,6 +17,8 @@ use App\Http\Filters\StudentFilter;
 
 class StudentController extends AbstractController
 {
+    use CheckSelfAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -117,7 +119,6 @@ class StudentController extends AbstractController
         }
 
         $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
-
 
         return $this->response(StudentResource::make($student));
 

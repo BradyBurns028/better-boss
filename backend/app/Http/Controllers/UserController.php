@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
+    use CheckSelfAccess;
+
     /**
      * Display a listing of the resource.
      */

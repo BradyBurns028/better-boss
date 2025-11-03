@@ -16,6 +16,8 @@ use App\Traits\CheckSelfAccess;
 
 class FacultyController extends AbstractController
 {
+    use CheckSelfAccess;
+
     /**
      * Display a listing of the resource.
      */
