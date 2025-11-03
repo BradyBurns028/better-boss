@@ -119,6 +119,6 @@ class AdminController extends AbstractController
     {
         $admin->delete();
 
-        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
+        return $this->response(data: ['status' => 200, 'message' => 'Admin deleted successfully.']);
     }
 }
