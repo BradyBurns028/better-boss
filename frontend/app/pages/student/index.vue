@@ -17,10 +17,10 @@ export default defineNuxtComponent({
     methods: {
       async getStudentInfo(this: any) {
         const user = await userApi.find(this.authStore.user.id)
-        const advisorUser = await userApi.find(user.student.advisor.user_id);
+        const advisorUser = user?.student.advisor.user;
         this.advisor = `${advisorUser.first_name} ${advisorUser.last_name}`
 
-        this.degree_program = user.student.degree_program.name;
+        this.degree_program = user?.student.degree_program.name;
       }
     },
     mounted() {

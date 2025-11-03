@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\Enums\PermissionEnum;
+use App\Enums\PermissionEnum;
 use App\Http\Responses\ApiResponse;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -27,10 +27,10 @@ class StudentController extends AbstractController
         $query = Student::query();
 
         if(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)) {
-            if (is_null(auth()->user()->faculty_id)) {
+            if (is_null(auth()->user()->faculties?->id)) {
                 return $this->error(404, 'Faculty ID not found.', 'forbidden');
             }
-            $query->where('faculty_id', auth()->user()->faculty_id);
+            $query->where('faculty_id', auth()->user()->faculties?->id);
         } else if(!auth()->user()->can(PermissionEnum::VIEW_STUDENTS->value)) {
             return $this->error(403, 'You do not have permission to view students.', 'forbidden');
         }

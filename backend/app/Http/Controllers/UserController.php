@@ -38,6 +38,7 @@ class UserController extends AbstractController
             'admins',
             'students.degreeProgram.department.organization',
             'faculties.department.organization',
+            'students.faculty.user',
         ]);
 
         // Filters

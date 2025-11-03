@@ -18,7 +18,7 @@ class StudentResource extends JsonResource
             'id' => $this->resource->id,
             'current_classes'=>$this->resource->classes,
             'organization' => $this->resource->organization,
-            'advisor'=>$this->resource->faculty,
+            'advisor' => FacultyResource::make($this->resource->faculty),
             'degree_program'=>$this->whenLoaded('degreeProgram'),
             'user'=>UserResource::make($this->whenLoaded('user'))
         ];
