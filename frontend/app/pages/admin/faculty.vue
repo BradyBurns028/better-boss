@@ -36,7 +36,7 @@ export default {
 <template>
   <div class="p-6">
     <BaseDataTable
-      header="Faculties"
+      header="Faculty"
       :tableValue="faculties"
       :paginator="true"
       :rows="10"

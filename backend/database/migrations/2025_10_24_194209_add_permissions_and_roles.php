@@ -134,7 +134,7 @@ return new class extends Migration
                 'view_departments',
                 'index_organizations'
             ])->get(),
-            'instructor' => Permission::whereIn('name', [
+            'faculty' => Permission::whereIn('name', [
                 'view_advisees',
                 'view_faculty',
                 'view_departments',
