@@ -161,6 +161,6 @@ class UserController extends AbstractController
 
         $user->delete();
 
-        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
+        return $this->response(data: ['status' => 200, 'message' => 'User deleted successfully.']);
     }
 }
