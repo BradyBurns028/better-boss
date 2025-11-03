@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Http\Filters\DepartmentFilter;
 use App\Http\Resources\DepartmentResource;
 use App\Http\Requests\StoreDepartmentRequest;
 use App\Http\Requests\UpdateDepartmentRequest;
+use App\Enums\PermissionEnum;
 
 class DepartmentController extends AbstractController
 {
@@ -16,6 +18,10 @@ class DepartmentController extends AbstractController
      */
     public function index(Request $request)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_DEPARTMENTS->value)){
+            return $this->error(403, 'You do not have permission to view all departments.', 'forbidden');
+        }
+
         $query = Department::query();
 
         // Includes
@@ -63,6 +69,10 @@ class DepartmentController extends AbstractController
      */
     public function store(StoreDepartmentRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_DEPARTMENTS->value)) {
+            return $this->error(403, 'You do not have permission to create departments.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $department = Department::create([
@@ -79,6 +89,10 @@ class DepartmentController extends AbstractController
      */
     public function show(Department $department)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_DEPARTMENTS->value)) {
+            return $this->error(403, 'You do not have permission to view departments.', 'forbidden');
+        }
+
         $department->load(['organization', 'degreePrograms', 'faculty', 'departmentChair']);
 
         return $this->response(data: DepartmentResource::make($department));
@@ -89,6 +103,10 @@ class DepartmentController extends AbstractController
      */
     public function update(UpdateDepartmentRequest $request, Department $department)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_DEPARTMENTS->value)) {
+            return $this->error(403, 'You do not have permission to update departments.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $department->save();
@@ -101,6 +119,12 @@ class DepartmentController extends AbstractController
      */
     public function destroy(Department $department)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_DEPARTMENTS->value)) {
+            return $this->error(403, 'You do not have permission to delete departments.', 'forbidden');
+        }
+
+        $department->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Department deleted successfully.']);
     }
 }

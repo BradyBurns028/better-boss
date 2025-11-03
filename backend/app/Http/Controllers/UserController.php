@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,6 +12,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Admin;
 use App\Enums\UserType;
+use App\Enums\PermissionEnum;
 use App\Models\Student;
 use App\Models\Faculty;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +24,12 @@ class UserController extends AbstractController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): Response {
+    public function index(Request $request)
+    {
+        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)) {
+            return $this->error(403, 'You do not have permission to view users.', 'forbidden');
+        }
+
         $query = User::query();
 
         $query->with([
@@ -68,6 +75,10 @@ class UserController extends AbstractController
      */
     public function store(StoreUserRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_USERS->value)) {
+            return $this->error(403, 'You do not have permission to create users.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $user = User::create([
@@ -88,6 +99,10 @@ class UserController extends AbstractController
      */
     public function show(User $user)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)) {
+            return $this->error(403, 'You do not have permission to view users.', 'forbidden');
+        }
+
         $user->load(['admins', 'organizations', 'students', 'faculties']);
 
         return $this->response(data: UserResource::make($user));
@@ -98,6 +113,25 @@ class UserController extends AbstractController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+
+        if(!auth()->user()->can(PermissionEnum::EDIT_USERS->value)) {
+            // Allow only password changes for the authenticated user
+            if (auth()->user()->id !== $user->id) {
+                return $this->error(403, 'You do not have permission to edit this user.', 'forbidden');
+            }
+
+            $data = $request->only(['password']);
+
+            if (empty($data['password'])) {
+                return $this->error(400, 'Password is required.', 'bad_request');
+            }
+
+            $user->password = bcrypt($data['password']);
+            $user->save();
+
+            return $this->response(data: UserResource::make($user));
+        }
+
         $data = $request->validated();
 
         // Handle password hashing if present
@@ -121,6 +155,12 @@ class UserController extends AbstractController
      */
     public function destroy(User $user)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_USERS->value)) {
+            return $this->error(403, 'You do not have permission to delete users.', 'forbidden');
+        }
+
+        $user->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'User deleted successfully.']);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use app\Enums\PermissionEnum;
+use App\Http\Responses\ApiResponse;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
@@ -22,6 +24,16 @@ class StudentController extends AbstractController
     {
         $query = Student::query();
 
+        if(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)) {
+            if (is_null(auth()->user()->faculty_id)) {
+                return $this->error(404, 'Faculty ID not found.', 'forbidden');
+            }
+            $query->where('faculty_id', auth()->user()->faculty_id);
+        } else if(!auth()->user()->can(PermissionEnum::VIEW_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to view students.', 'forbidden');
+        }
+
+        // Includes (support nested degreeProgram.department)
         $allowedIncludes = ['user', 'faculty', 'degreeProgram', 'degreeProgram.department'];
         $query->with($allowedIncludes);
 
@@ -62,6 +74,10 @@ class StudentController extends AbstractController
      */
     public function store(StoreStudentRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to create students.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $user = User::create([
@@ -88,9 +104,22 @@ class StudentController extends AbstractController
      * Display the specified resource.
      */
     public function show(Student $student): Response {
+
+        if((auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
+            && !($student->faculty_id === auth()->user()->faculty_id))){
+            return $this->error(403, 'You do not have permission to view this student because you do not advise them.', 'forbidden');
+
+        } else if( !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
+        && !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value))
+        ) {
+            return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
+        }
+
         $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
 
+
         return $this->response(StudentResource::make($student));
+
     }
 
     /**
@@ -98,6 +127,10 @@ class StudentController extends AbstractController
      */
     public function update(UpdateStudentRequest $request, Student $student)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to update this student.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $user = $student->user;
@@ -114,6 +147,12 @@ class StudentController extends AbstractController
      */
     public function destroy(Student $student)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_STUDENTS->value)) {
+            return $this->error(403, 'You do not have permission to delete this student.', 'forbidden');
+        }
+
+        $student->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
     }
 }

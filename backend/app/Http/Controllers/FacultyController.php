@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Faculty;
 use Illuminate\Http\Request;
 use App\Http\Filters\FacultyFilter;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\FacultyResource;
 use App\Http\Requests\StoreFacultyRequest;
 use App\Http\Requests\UpdateFacultyRequest;
+use App\Enums\PermissionEnum;
 
 class FacultyController extends AbstractController
 {
@@ -19,6 +21,29 @@ class FacultyController extends AbstractController
     public function index(Request $request)
     {
         $query = Faculty::query();
+
+        if(auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+        ) {
+            $query->where('role_type', 'instructor');
+
+        } else if(auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+        ) {
+            $query->where('role_type', 'staff');
+
+        } else if(
+            auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+            && !auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+        ) {
+            $query->where('role_type', 'administrator');
+
+        } else if(!auth()->user()->can(PermissionEnum::VIEW_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to view faculty.', 'forbidden');
+        }
 
         // Includes
         $allowedIncludes = ['user', 'department', 'degreePrograms', 'advisees'];
@@ -65,6 +90,10 @@ class FacultyController extends AbstractController
      */
     public function store(StoreFacultyRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to create faculty.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $user = User::create([
@@ -93,9 +122,24 @@ class FacultyController extends AbstractController
      */
     public function show(Faculty $faculty)
     {
-        $faculty->load('user', 'department', 'degreePrograms', 'advisees');
+        if(
+            !(auth()->user()->can(PermissionEnum::VIEW_FACULTY->value))
+            && !(auth()->user()->can(PermissionEnum::VIEW_ADMINISTRATORS->value)
+                && $faculty->role_type === 'administrator')
+            && !(auth()->user()->can(PermissionEnum::VIEW_INSTRUCTORS->value)
+                && $faculty->role_type === 'instructor')
+            && !(auth()->user()->can(PermissionEnum::VIEW_STAFF->value)
+                && $faculty->role_type === 'staff')
+        ) {
+            return $this->error(403, 'You do not have permission to view this faculty.', 'forbidden');
+        }
 
-        return $this->response(data: FacultyResource::make($faculty));
+        $faculty->load('user', 'department', 'degreePrograms');
+            if($faculty->role_type === 'instructor') {
+                $faculty->load('advisees');
+            }
+
+            return $this->response(data: FacultyResource::make($faculty));
     }
 
     /**
@@ -103,6 +147,10 @@ class FacultyController extends AbstractController
      */
     public function update(UpdateFacultyRequest $request, Faculty $faculty)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to update faculty.', 'forbidden');
+        }
+
         $data = $request->validate([
             'first_name' => 'sometimes|required|string|max:255',
             'last_name' => 'sometimes|required|string|max:255',
@@ -127,6 +175,13 @@ class FacultyController extends AbstractController
      */
     public function destroy(Faculty $faculty)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_FACULTY->value)) {
+            return $this->error(403, 'You do not have permission to delete faculty.', 'forbidden');
+        }
+
+        $faculty->user->delete();
+        $faculty->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Faculty deleted successfully.']);
     }
 }

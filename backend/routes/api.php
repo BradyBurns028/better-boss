@@ -17,19 +17,20 @@ use App\Http\Controllers\PlanOfStudyController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::apiResource('students', StudentController::class);
-Route::apiResource('users', UserController::class);
-Route::apiResource('organizations', OrganizationController::class);
-Route::apiResource('faculties', FacultyController::class);
-Route::apiResource('departments', DepartmentController::class);
-Route::apiResource('degree_programs', DegreeProgramController::class);
-Route::apiResource('admins', AdminController::class);
-Route::apiResource('courses', CourseController::class);
-Route::apiResource('course_sections', CourseSectionController::class);
-Route::apiResource('planned_course_pivots', PlannedCoursePivotController::class);
-Route::apiResource('plans_of_study', PlanOfStudyController::class);
+
 
 Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanctum']], function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::apiResource('students', StudentController::class);
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('organizations', OrganizationController::class);
+    Route::apiResource('faculties', FacultyController::class);
+    Route::apiResource('departments', DepartmentController::class);
+    Route::apiResource('degree_programs', DegreeProgramController::class);
+    Route::apiResource('admins', AdminController::class);
+    Route::apiResource('courses', CourseController::class);
+    Route::apiResource('course_sections', CourseSectionController::class);
+    Route::apiResource('planned_course_pivots', PlannedCoursePivotController::class);
+    Route::apiResource('plans_of_study', PlanOfStudyController::class);
 });

@@ -43,6 +43,7 @@ return new class extends Migration
             'view_administrators',
             'view_instructors',
             'view_staff',
+            'delete_faculty',
 
             // Departments
             'view_departments',
@@ -106,6 +107,7 @@ return new class extends Migration
                 'view_faculty_details',
                 'create_faculty',
                 'edit_faculty',
+                'delete_faculty',
                 'view_departments',
                 'create_departments',
                 'edit_departments',
@@ -142,7 +144,7 @@ return new class extends Migration
                 'view_courses',
                 'view_course_sections',
                 'view_enrolled_students',
-                'index_plans_of_study'
+                'view_plans_of_study'
             ])->get(),
             'student' => Permission::whereIn('name', [
                 'view_instructors',
@@ -207,6 +209,7 @@ return new class extends Migration
             'view_administrators',
             'view_instructors',
             'view_staff',
+            'delete_faculty',
 
             // Departments
             'view_departments',

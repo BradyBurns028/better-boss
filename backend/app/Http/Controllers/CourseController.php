@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use app\Enums\PermissionEnum;
+use App\Http\Responses\ApiResponse;
 use App\Models\Courses\Course;
 use Illuminate\Http\Request;
 use App\Http\Resources\CourseResource;
@@ -16,6 +18,10 @@ class CourseController extends AbstractController
      */
     public function index(Request $request)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_COURSES->value)){
+            return $this->error(403, 'You do not have permission to view courses.', 'forbidden');
+        }
+
         $query = Course::query();
 
         // Includes
@@ -63,6 +69,10 @@ class CourseController extends AbstractController
      */
     public function store(StoreCourseRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_COURSES->value)){
+            return $this->error(403, 'You do not have permission to create new courses.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $course = Course::create([
@@ -82,6 +92,10 @@ class CourseController extends AbstractController
      */
     public function show(Course $course)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_COURSES->value)){
+            return $this->error(403, 'You do not have permission to view courses.', 'forbidden');
+        }
+
         $course->load(['department', 'prerequisite', 'dependents', 'sections', 'degreeRequirements', 'plans']);
 
         return $this->response(data: CourseResource::make($course));
@@ -92,6 +106,10 @@ class CourseController extends AbstractController
      */
     public function update(UpdateCourseRequest $request, Course $course)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_COURSES->value)){
+            return $this->error(403, 'You do not have permission to edit courses.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $course->save();
@@ -104,6 +122,12 @@ class CourseController extends AbstractController
      */
     public function destroy(Course $course)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_COURSES->value)){
+            return $this->error(403, 'You do not have permission to delete courses.', 'forbidden');
+        }
+
+        $course->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Course deleted successfully.']);
     }
 }

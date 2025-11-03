@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Http\Filters\OrganizationFilter;
@@ -11,6 +12,7 @@ use App\Models\User;
 use App\Http\Resources\OrganizationResource;
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Http\Requests\UpdateOrganizationRequest;
+use App\Enums\PermissionEnum;
 
 class OrganizationController extends AbstractController
 {
@@ -19,6 +21,10 @@ class OrganizationController extends AbstractController
      */
     public function index(Request $request)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_ORGANIZATIONS->value)){
+            return $this->error(403, 'You do not have permission to view all organizations.', 'forbidden');
+        }
+
         $query = Organization::query();
 
         // Includes
@@ -66,6 +72,10 @@ class OrganizationController extends AbstractController
      */
     public function store(StoreOrganizationRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_ORGANIZATIONS->value)) {
+            return $this->error(403, 'You do not have permission to create organizations.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $organization = Organization::create([
@@ -83,6 +93,10 @@ class OrganizationController extends AbstractController
      */
     public function show(Organization $organization)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_ORGANIZATIONS->value)) {
+            return $this->error(403, 'You do not have permission to view organizations.', 'forbidden');
+        }
+
         $organization->load('admin', 'user', 'departments');
 
         return $this->response(data: OrganizationResource::make($organization));
@@ -93,6 +107,10 @@ class OrganizationController extends AbstractController
      */
     public function update(UpdateOrganizationRequest $request, Organization $organization)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_ORGANIZATIONS->value)) {
+            return $this->error(403, 'You do not have permission to update organizations.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $organization->fill($data);
@@ -106,6 +124,12 @@ class OrganizationController extends AbstractController
      */
     public function destroy(Organization $organization)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_ORGANIZATIONS->value)) {
+            return $this->error(403, 'You do not have permission to delete organizations.', 'forbidden');
+        }
+
+        $organization->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Organization deleted successfully.']);
     }
 }

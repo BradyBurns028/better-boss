@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Courses\PlanOfStudy;
 use Illuminate\Http\Request;
 use App\Http\Resources\PlanOfStudyResource;
 use App\Http\Requests\StorePlanOfStudyRequest;
 use App\Http\Requests\UpdatePlanOfStudyRequest;
 use App\Http\Filters\PlanOfStudyFilter;
+use app\Enums\PermissionEnum;
 
 class PlanOfStudyController extends AbstractController
 {
@@ -17,6 +19,20 @@ class PlanOfStudyController extends AbstractController
     public function index(Request $request)
     {
         $query = PlanOfStudy::query();
+
+        $user = auth()->user();
+
+        if($user->user_type === 'student') {
+            $query->where('student_id', $user->student->id);
+        } else if($user->user_type === 'faculty' && $user->faculty->role_type->equals('instructor')) {
+            $query->whereHas('student', function ($q) use ($user) {
+                $q->where('advisor_id', $user->faculty->id);
+            });
+        }
+
+        if(!$user->can(PermissionEnum::VIEW_PLANS_OF_STUDY->value)) {
+            return $this->error(403, 'You do not have permission to view plans of study.', 'forbidden');
+        }
 
         // Includes (supports nested include degreeProgram.department)
         $allowedIncludes = ['degreeProgram', 'degreeProgram.department', 'student', 'courses', 'sections'];
@@ -63,6 +79,10 @@ class PlanOfStudyController extends AbstractController
      */
     public function store(StorePlanOfStudyRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_PLANS_OF_STUDY->value)) {
+            return $this->error(403, 'You do not have permission to create a plan of study.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $planOfStudy = PlanOfStudy::create([
@@ -78,6 +98,17 @@ class PlanOfStudyController extends AbstractController
      */
     public function show(PlanOfStudy $planOfStudy)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_PLANS_OF_STUDY->value)
+            || !(auth()->user() == $planOfStudy->student->user)) {
+            return $this->error(403, 'You do not have permission to view this plan of study.', 'forbidden');
+
+        } else if (auth()->user()->user_type === 'faculty'
+            && auth()->user()->faculty->role_type->equals('instructor')) {
+            if($planOfStudy->student->advisor_id !== auth()->user()->faculty->id) {
+                return $this->error(403, 'You do not have permission to view this plan of study.', 'forbidden');
+            }
+        }
+
         $planOfStudy->load(['degreeProgram', 'student', 'courses', 'sections']);
 
         return $this->response(data: PlanOfStudyResource::make($planOfStudy));
@@ -88,6 +119,14 @@ class PlanOfStudyController extends AbstractController
      */
     public function update(UpdatePlanOfStudyRequest $request, PlanOfStudy $planOfStudy)
     {
+        $user = auth()->user();
+
+        if(!($user == $planOfStudy->student->user)
+            || !$user->can(PermissionEnum::EDIT_PLANS_OF_STUDY->value)) {
+
+            return $this->error(403, 'You do not have permission to update this plan of study.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $planOfStudy->save();
@@ -100,6 +139,16 @@ class PlanOfStudyController extends AbstractController
      */
     public function destroy(PlanOfStudy $planOfStudy)
     {
-        //
+        $user = auth()->user();
+
+        if(!$user->can(PermissionEnum::DELETE_PLANS_OF_STUDY->value)
+            || !($user == $planOfStudy->student->user)) {
+
+            return $this->error(403, 'You do not have permission to delete this plan of study.', 'forbidden');
+        }
+
+        $planOfStudy->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Plan of study deleted successfully.']);
     }
 }

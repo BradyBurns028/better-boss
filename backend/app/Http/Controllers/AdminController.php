@@ -117,6 +117,8 @@ class AdminController extends AbstractController
      */
     public function destroy(Admin $admin)
     {
-        //
+        $admin->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Admin deleted successfully.']);
     }
 }

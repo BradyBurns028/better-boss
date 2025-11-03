@@ -26,6 +26,7 @@ enum PermissionEnum: string
     case VIEW_FACULTY_DETAILS = 'view_faculty_details';
     case CREATE_FACULTY = 'create_faculty';
     case EDIT_FACULTY = 'edit_faculty';
+    case DELETE_FACULTY = 'delete_faculty';
     case VIEW_ADMINISTRATORS = 'view_administrators';
     case VIEW_INSTRUCTORS = 'view_instructors';
     case VIEW_STAFF = 'view_staff';

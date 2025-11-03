@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\DegreeProgram;
 use Illuminate\Http\Request;
 use App\Http\Filters\DegreeProgramFilter;
 use App\Http\Resources\DegreeProgramResource;
 use App\Http\Requests\StoreDegreeProgramRequest;
 use App\Http\Requests\UpdateDegreeProgramRequest;
+use App\Enums\PermissionEnum;
 
 class DegreeProgramController extends AbstractController
 {
@@ -16,6 +18,10 @@ class DegreeProgramController extends AbstractController
      */
     public function index(Request $request)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_DEGREE_PROGRAMS->value)){
+            return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
+        }
+
         $query = DegreeProgram::query();
 
         // Includes
@@ -63,6 +69,10 @@ class DegreeProgramController extends AbstractController
      */
     public function store(StoreDegreeProgramRequest $request)
     {
+        if(!auth()->user()->can(PermissionEnum::CREATE_DEGREE_PROGRAMS->value)) {
+            return $this->error(403, 'You do not have permission to create degree programs.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $degreeProgram = DegreeProgram::create([
@@ -79,6 +89,10 @@ class DegreeProgramController extends AbstractController
      */
     public function show(DegreeProgram $degreeProgram)
     {
+        if(!auth()->user()->can(PermissionEnum::VIEW_DEGREE_PROGRAMS->value)) {
+            return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
+        }
+
         $degreeProgram->load(['department', 'programChair', 'students']);
 
         return $this->response(data: DegreeProgramResource::make($degreeProgram));
@@ -89,6 +103,10 @@ class DegreeProgramController extends AbstractController
      */
     public function update(UpdateDegreeProgramRequest $request, DegreeProgram $degreeProgram)
     {
+        if(!auth()->user()->can(PermissionEnum::EDIT_DEGREE_PROGRAMS->value)) {
+            return $this->error(403, 'You do not have permission to edit degree programs.', 'forbidden');
+        }
+
         $data = $request->validated();
 
         $degreeProgram->save();
@@ -101,6 +119,12 @@ class DegreeProgramController extends AbstractController
      */
     public function destroy(DegreeProgram $degreeProgram)
     {
-        //
+        if(!auth()->user()->can(PermissionEnum::DELETE_DEGREE_PROGRAMS->value)) {
+            return $this->error(403, 'You do not have permission to delete degree programs.', 'forbidden');
+        }
+
+        $degreeProgram->delete();
+
+        return $this->response(data: ['status' => 200, 'message' => 'Degree program deleted successfully.']);
     }
 }
