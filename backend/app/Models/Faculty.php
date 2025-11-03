@@ -8,6 +8,7 @@ namespace App\Models;
 
 use App\Enums\FacultyRoleTypeEnum;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -75,4 +76,8 @@ class Faculty extends Model {
 	{
 		return $this->hasOne(Department::class, 'department_chair');
 	}
+
+    protected function organization(): Attribute {
+        return Attribute::get(fn () => $this->department?->organization);
+    }
 }
