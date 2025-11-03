@@ -18,14 +18,21 @@ class CourseController extends AbstractController
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+
         if(!auth()->user()->can(PermissionEnum::VIEW_COURSES->value)){
             return $this->error(403, 'You do not have permission to view courses.', 'forbidden');
         }
 
         $query = Course::query();
 
-        // Includes
         $query->with(['department', 'prerequisite', 'dependents', 'sections', 'degreeRequirements', 'plans']);
+
+        $orgId = $user?->organization?->id;
+
+        if ($orgId) {
+            $query->forOrganization($orgId);
+        }
 
         // Filters
         (new CourseFilter())->apply($request, $query);

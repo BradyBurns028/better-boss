@@ -1,4 +1,4 @@
-# Test Suite Overview
+# Tests Overview
 
 This document explains what tests exist (or will exist), how they’re organized, how to run them, and—most importantly—**what behaviors and edge cases they cover**. The suite uses **Pest** on top of **Laravel**.
 
