@@ -6,7 +6,7 @@ use app\Enums\PermissionEnum;
 use App\Http\Responses\ApiResponse;
 use App\Models\Student;
 use Illuminate\Http\Request;
-
+use App\Traits\CheckSelfAccess;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\StudentResource;
@@ -105,12 +105,13 @@ class StudentController extends AbstractController
      */
     public function show(Student $student): Response {
 
-        if((auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
-            && !($student->faculty_id === auth()->user()->faculty_id))){
+        if ((auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
+            && !($student->faculty_id === auth()->user()->faculty_id))) {
             return $this->error(403, 'You do not have permission to view this student because you do not advise them.', 'forbidden');
 
-        } else if( !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
-        && !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value))
+        } else if (!(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
+            && !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value))
+            && !$this->isSelf($student)
         ) {
             return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
         }
