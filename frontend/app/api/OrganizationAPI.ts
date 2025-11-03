@@ -4,6 +4,7 @@ import {apiService} from '~/services/ApiService'
 export type Organization = {
     id: number
     name: string
+    address?: string
 }
 
 export class OrganizationApi extends BaseApi<Organization, {}> {

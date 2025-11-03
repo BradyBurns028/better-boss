@@ -47,6 +47,7 @@ export default defineComponent({
                     { label: 'Manage Courses', to: '/admin/courses' },
                     { label: 'Manage Faculty', to: '/admin/faculty' },
                     { label: 'Manage Organizations', to: '/admin/organizations' },
+                    { label: 'Manage Students', to: '/admin/students' },
                     { label: 'Help', to: '/help' },
                 ]
             }
