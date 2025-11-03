@@ -18,7 +18,7 @@ class CourseSectionController extends AbstractController
      */
     public function index(Request $request)
     {
-        if(!auth()->user()->can(PermissionEnum::VIEW_COURSE_SECTIONS)) {
+        if(!auth()->user()->can(PermissionEnum::VIEW_COURSE_SECTIONS->value)) {
             return $this->error(403, 'You do not have permission to view course sections.', 'forbidden');
         }
 
