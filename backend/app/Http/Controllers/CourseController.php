@@ -77,16 +77,20 @@ class CourseController extends AbstractController
 
         $data = $request->validated();
 
-        $course = Course::create([
-            'course_code' => $data['course_code'],
-            'name' => $data['name'],
-            'description' => $data['description'] ?? null,
-            'credits' => $data['credits'],
-            'department_id' => $data['department_id'],
-            'prerequisite_id' => $data['prerequisite_id'] ?? null,
-        ]);
+        try {
+            $course = Course::create([
+                'course_code' => $data['course_code'],
+                'name' => $data['name'],
+                'description' => $data['description'] ?? null,
+                'credits' => $data['credits'],
+                'department_id' => $data['department_id'],
+                'prerequisite_id' => $data['prerequisite_id'] ?? null,
+            ]);
 
-        return $this->response($course);
+            return $this->response($course);
+        } catch (\Exception $exception) {
+            return $this->error(500, $exception->getMessage(), 'internal_server_error');
+        }
     }
 
     /**
