@@ -82,24 +82,28 @@ class StudentController extends AbstractController
 
         $data = $request->validated();
 
-        $user = User::create([
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'user_type' => $data['user_type'] ?? 'student',
-        ]);
+        try {
+            $user = User::create([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'password' => bcrypt($data['password']),
+                'user_type' => $data['user_type'] ?? 'student',
+            ]);
 
-        $student = Student::create([
-            'user_id' => $user->id,
-            'degree_program' => $data['degree_program'],
-            'faculty_id' => $data['faculty_id'] ?? null,
-        ]);
+            $student = Student::create([
+                'user_id' => $user->id,
+                'degree_program' => $data['degree_program'],
+                'faculty_id' => $data['faculty_id'] ?? null,
+            ]);
 
-        return $this->response([
-            'user'=>$user,
-            'student'=>$student
-        ]);
+            return $this->response([
+                'user' => $user,
+                'student' => $student
+            ]);
+        } catch (\Exception $exception) {
+            return $this->error(500, $exception->getMessage(), 'internal_server_error');
+        }
     }
 
     /**

@@ -84,17 +84,21 @@ class UserController extends AbstractController
 
         $data = $request->validated();
 
-        $user = User::create([
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'user_type' => $data['user_type'] ?? null,
-        ]);
+        try {
+            $user = User::create([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'password' => bcrypt($data['password']),
+                'user_type' => $data['user_type'] ?? null,
+            ]);
 
-        $user->load(['admins', 'organizations', 'students', 'faculties']);
+            $user->load(['admins', 'organizations', 'students', 'faculties']);
 
-        return $this->response(data: UserResource::make($user));
+            return $this->response(data: UserResource::make($user));
+        } catch (\Exception $exception) {
+            return $this->error(500, 'An error occurred while creating the user.', 'internal_server_error');
+        }
     }
 
     /**

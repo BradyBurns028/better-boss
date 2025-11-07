@@ -85,12 +85,16 @@ class PlanOfStudyController extends AbstractController
 
         $data = $request->validated();
 
-        $planOfStudy = PlanOfStudy::create([
-            'degree_program_id' => $data['degree_program_id'],
-            'student_id' => $data['student_id'],
-        ]);
+        try {
+            $planOfStudy = PlanOfStudy::create([
+                'degree_program_id' => $data['degree_program_id'],
+                'student_id' => $data['student_id'],
+            ]);
 
-        return $this->response($planOfStudy);
+            return $this->response($planOfStudy);
+        } catch (\Exception $e) {
+            return $this->error(500, 'An error occurred while creating the plan of study.', 'internal_server_error');
+        }
     }
 
     /**

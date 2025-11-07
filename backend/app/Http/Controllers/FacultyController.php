@@ -99,25 +99,29 @@ class FacultyController extends AbstractController
 
         $data = $request->validated();
 
-        $user = User::create([
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'user_type' => $data['user_type'] ?? 'faculty',
-        ]);
+        try {
+            $user = User::create([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'password' => bcrypt($data['password']),
+                'user_type' => $data['user_type'] ?? 'faculty',
+            ]);
 
-        $faculty = Faculty::create([
-            'user_id' => $user->id,
-            'office' => $data['office'] ?? null,
-            'role_type' => $data['role_type'],
-            'department_id' => $data['department_id'],
-        ]);
+            $faculty = Faculty::create([
+                'user_id' => $user->id,
+                'office' => $data['office'] ?? null,
+                'role_type' => $data['role_type'],
+                'department_id' => $data['department_id'],
+            ]);
 
-        return $this->response([
-            'user' => $user,
-            'faculty' => $faculty,
-        ]);
+            return $this->response([
+                'user' => $user,
+                'faculty' => $faculty,
+            ]);
+        } catch (\Exception $exception) {
+            return $this->error(500, $exception->getMessage(), 'internal_server_error');
+        }
     }
 
     /**

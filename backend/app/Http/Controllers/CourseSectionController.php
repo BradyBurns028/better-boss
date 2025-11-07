@@ -75,18 +75,22 @@ class CourseSectionController extends AbstractController
 
         $data = $request->validated();
 
-        $courseSection = CourseSection::create([
-            'course_id' => $data['course_id'],
-            'section_number' => $data['section_number'],
-            'term' => $data['term'],
-            'year' => $data['year'],
-            'time' => $data['time'] ?? null,
-            'instructor_id' => $data['instructor_id'] ?? null,
-            'capacity' => $data['capacity'] ?? null,
-            'room_number' => $data['room_number'] ?? null,
-        ]);
+        try{
+            $courseSection = CourseSection::create([
+                'course_id' => $data['course_id'],
+                'section_number' => $data['section_number'],
+                'term' => $data['term'],
+                'year' => $data['year'],
+                'time' => $data['time'] ?? null,
+                'instructor_id' => $data['instructor_id'] ?? null,
+                'capacity' => $data['capacity'] ?? null,
+                'room_number' => $data['room_number'] ?? null,
+            ]);
+            return $this->response($courseSection);
 
-        return $this->response($courseSection);
+        } catch (\Exception $exception) {
+            return $this->error(500, $exception->getMessage(), 'internal_server_error');
+        }
     }
 
     /**

@@ -75,13 +75,17 @@ class DegreeProgramController extends AbstractController
 
         $data = $request->validated();
 
-        $degreeProgram = DegreeProgram::create([
-            'name' => $data['name'],
-            'department_id' => $data['department_id'],
-            'program_chair' => $data['program_chair'] ?? null,
-        ]);
+        try {
+            $degreeProgram = DegreeProgram::create([
+                'name' => $data['name'],
+                'department_id' => $data['department_id'],
+                'program_chair' => $data['program_chair'] ?? null,
+            ]);
+            return $this->response($degreeProgram);
 
-        return $this->response($degreeProgram);
+        } catch (\Exception $exception) {
+            return $this->error(500, $exception->getMessage(), 'internal_server_error');
+        }
     }
 
     /**

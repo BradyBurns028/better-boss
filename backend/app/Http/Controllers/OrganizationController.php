@@ -78,14 +78,18 @@ class OrganizationController extends AbstractController
 
         $data = $request->validated();
 
-        $organization = Organization::create([
-            'name' => $data['name'],
-            'admin_id' => $data['admin_id'],
-            'owner_id' => $data['owner_id'] ?? null,
-            'address' => $data['address'] ?? null,
-        ]);
+        try {
+            $organization = Organization::create([
+                'name' => $data['name'],
+                'admin_id' => $data['admin_id'],
+                'owner_id' => $data['owner_id'] ?? null,
+                'address' => $data['address'] ?? null,
+            ]);
 
-        return $this->response($organization);
+            return $this->response($organization);
+        } catch (\Exception $e) {
+            return $this->error(500, 'An error occurred while creating the organization.', 'internal_server_error');
+        }
     }
 
     /**

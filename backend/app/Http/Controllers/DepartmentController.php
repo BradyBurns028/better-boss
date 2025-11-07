@@ -75,13 +75,16 @@ class DepartmentController extends AbstractController
 
         $data = $request->validated();
 
-        $department = Department::create([
-            'name' => $data['name'],
-            'organization_id' => $data['organization_id'],
-            'department_chair' => $data['department_chair'] ?? null,
-        ]);
-
-        return $this->response($department);
+        try {
+            $department = Department::create([
+                'name' => $data['name'],
+                'organization_id' => $data['organization_id'],
+                'department_chair' => $data['department_chair'] ?? null,
+            ]);
+            return $this->response($department);
+        } catch (\Exception $exception) {
+            return $this->error(500, $exception->getMessage(), 'internal_server_error');
+        }
     }
 
     /**
