@@ -15,6 +15,7 @@ class FacultyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'office' => $this->office,
             'role_type' => $this->role_type,
 

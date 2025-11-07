@@ -2,54 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use app\Enums\PermissionEnum;
-use App\Http\Responses\ApiResponse;
+use App\Enums\PermissionEnum;
 use App\Models\Courses\Course;
+use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\CourseResource;
 use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseRequest;
 use App\Http\Filters\CourseFilter;
+use Symfony\Component\HttpFoundation\Response;
 
-class CourseController extends AbstractController
-{
+class CourseController extends AbstractController {
+    public function __construct(
+        private readonly CourseFilter $filter,
+    ){}
+
     /**
      * Display a listing of the resource.
+     *
+     * @param Request $request
+     * @return Response
      */
-    public function index(Request $request)
-    {
-        if(!auth()->user()->can(PermissionEnum::VIEW_COURSES->value)){
+    public function index(Request $request): Response {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if(!$user->can(PermissionEnum::VIEW_COURSES->value)){
             return $this->error(403, 'You do not have permission to view courses.', 'forbidden');
         }
 
-        $query = Course::query();
+        /** @var Organization $organization */
+        $organization = $user->organization;
+        $orgId = $organization?->id;
 
-        // Includes
-        $allowedIncludes = ['department', 'prerequisite', 'dependents', 'sections', 'degreeRequirements', 'plans'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
+        $query = $orgId
+            ? Course::forOrganization($orgId)
+            : Course::query();
 
-        // Filters
-        (new CourseFilter())->apply($request, $query);
+        $query->with(['department', 'prerequisite', 'dependents', 'sections', 'plans']);
 
-        // Sorting
-        $allowedSorts = ['id', 'course_code', 'name', 'credits', 'department_id', 'created_at'];
-        $sort = (string) $request->query('sort', 'course_code');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'course_code';
-        }
-        $query->orderBy($sort, $direction);
+        $this->filter->apply($request, $query);
 
-        // Pagination
-        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+        $query->orderBy('course_code');
+        $perPage = $request->query('per_page', 15);
         $paginator = $query->paginate($perPage)->appends($request->query());
 
         $data = CourseResource::collection($paginator->items());
@@ -67,9 +63,11 @@ class CourseController extends AbstractController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCourseRequest $request)
-    {
-        if(!auth()->user()->can(PermissionEnum::CREATE_COURSES->value)){
+    public function store(StoreCourseRequest $request): Response {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if(!$user->can(PermissionEnum::CREATE_COURSES->value)){
             return $this->error(403, 'You do not have permission to create new courses.', 'forbidden');
         }
 
@@ -90,9 +88,11 @@ class CourseController extends AbstractController
     /**
      * Display the specified resource.
      */
-    public function show(Course $course)
-    {
-        if(!auth()->user()->can(PermissionEnum::VIEW_COURSES->value)){
+    public function show(Course $course): Response {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if(!$user->can(PermissionEnum::VIEW_COURSES->value)){
             return $this->error(403, 'You do not have permission to view courses.', 'forbidden');
         }
 
@@ -104,25 +104,28 @@ class CourseController extends AbstractController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCourseRequest $request, Course $course)
-    {
-        if(!auth()->user()->can(PermissionEnum::EDIT_COURSES->value)){
+    public function update(UpdateCourseRequest $request, Course $course): Response {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if(!$user->can(PermissionEnum::EDIT_COURSES->value)){
             return $this->error(403, 'You do not have permission to edit courses.', 'forbidden');
         }
 
         $data = $request->validated();
+        $course->update($data);
 
-        $course->save();
-
-        return $this->response($course);
+        return $this->response($course->fresh());
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Course $course)
-    {
-        if(!auth()->user()->can(PermissionEnum::DELETE_COURSES->value)){
+    public function destroy(Course $course): Response {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if(!$user->can(PermissionEnum::DELETE_COURSES->value)){
             return $this->error(403, 'You do not have permission to delete courses.', 'forbidden');
         }
 

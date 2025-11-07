@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Collection<int, PlanOfStudy> $plans
  *
  * @method static Builder|Course code(string $code)
+ * @method static Builder|Course forOrganization(int $orgId)
+ * @method static create(array $array)
  *
  * @package App\Models\Courses
  */
