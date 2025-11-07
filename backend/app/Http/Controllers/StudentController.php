@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use app\Enums\PermissionEnum;
+use App\Enums\PermissionEnum;
 use App\Http\Responses\ApiResponse;
 use App\Models\Student;
 use Illuminate\Http\Request;
-
+use App\Traits\CheckSelfAccess;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\StudentResource;
@@ -17,6 +17,8 @@ use App\Http\Filters\StudentFilter;
 
 class StudentController extends AbstractController
 {
+    use CheckSelfAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -25,10 +27,10 @@ class StudentController extends AbstractController
         $query = Student::query();
 
         if(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)) {
-            if (is_null(auth()->user()->faculty_id)) {
+            if (is_null(auth()->user()->faculties?->id)) {
                 return $this->error(404, 'Faculty ID not found.', 'forbidden');
             }
-            $query->where('faculty_id', auth()->user()->faculty_id);
+            $query->where('faculty_id', auth()->user()->faculties?->id);
         } else if(!auth()->user()->can(PermissionEnum::VIEW_STUDENTS->value)) {
             return $this->error(403, 'You do not have permission to view students.', 'forbidden');
         }
@@ -105,18 +107,18 @@ class StudentController extends AbstractController
      */
     public function show(Student $student): Response {
 
-        if((auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
-            && !($student->faculty_id === auth()->user()->faculty_id))){
+        if ((auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value)
+            && !($student->faculty_id === auth()->user()->faculty_id))) {
             return $this->error(403, 'You do not have permission to view this student because you do not advise them.', 'forbidden');
 
-        } else if( !(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
-        && !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value))
+        } else if (!(auth()->user()->can(PermissionEnum::VIEW_STUDENT_DETAILS->value))
+            && !(auth()->user()->can(PermissionEnum::VIEW_ADVISEES->value))
+            && !$this->isSelf($student)
         ) {
             return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
         }
 
         $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
-
 
         return $this->response(StudentResource::make($student));
 

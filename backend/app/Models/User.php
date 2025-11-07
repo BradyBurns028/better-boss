@@ -86,6 +86,33 @@ class User extends Authenticatable
 		return $this->hasOne(Faculty::class);
 	}
 
+    /**
+     * Returns the organization model for a faculty or student, null for admin
+     *
+     * @return Attribute
+     */
+    protected function organization(): Attribute {
+        return Attribute::get(function () {
+            if ($this->hasRole('admin') || $this->user_type === UserType::ADMIN) {
+                return null;
+            }
+
+            $student = $this->students()
+                ->with('degreeProgram.department.organization')
+                ->first();
+
+            if ($student?->degreeProgram?->department?->organization) {
+                return $student->degreeProgram->department->organization;
+            }
+
+            $faculty = $this->faculties()
+                ->with('department.organization')
+                ->first();
+
+            return $faculty?->department?->organization;
+        });
+    }
+
     protected static function booted(){
         static::created(function (User $user) {
             if ($user->user_type && !$user->roles()->exists()) {

@@ -10,10 +10,10 @@ export interface Student {
     user: User
 }
 
-export class StudentApi extends BaseApi<Student, never> {
+export class FacultyApi extends BaseApi<Student, never> {
     constructor() {
-        super('students')
+        super('faculties')
     }
 }
 
-export const studentApi = new StudentApi()
+export const facultyApi = new FacultyApi()

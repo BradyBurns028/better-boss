@@ -127,4 +127,17 @@ class Course extends Model {
     public function scopeCode(Builder $query, string $code): Builder {
         return $query->where('course_code', $code);
     }
+
+    /**
+     * Allows the course to easily be filtered to an organization
+     *
+     * Ex: Course::forOrganization(1)
+     *
+     * @param Builder $query
+     * @param int $orgId
+     * @return Builder
+     */
+    public function scopeForOrganization(Builder $query, int $orgId): Builder {
+        return $query->whereHas('department', fn ($q) => $q->where('organization_id', $orgId));
+    }
 }
