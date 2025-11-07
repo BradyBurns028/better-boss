@@ -1,16 +1,11 @@
 import {BaseApi} from "~/api/BaseAPI";
-import type {Organization} from "~/api/OrganizationAPI";
-import type {User} from "~/api/UserAPI";
 
-export interface Student {
+export type Faculty = {
     id: number
-    organization: Organization
-    advisor: Object
-    degree_program: Object
-    user: User
+    name: string
 }
 
-export class FacultyApi extends BaseApi<Student, never> {
+export class FacultyApi extends BaseApi<Faculty, {}> {
     constructor() {
         super('faculties')
     }

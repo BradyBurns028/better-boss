@@ -21,13 +21,28 @@ export abstract class BaseApi<TModel, TFilter extends FilterParams<any> = {}> {
         this.resource = resource
     }
 
-    protected buildFilters(filters: TFilter): Record<string, any> {
+    protected buildFilters(filters: Record<string, any>): Record<string, any> {
         const result: Record<string, any> = {}
-        Object.entries(filters).forEach(([field, operators]) => {
-            Object.entries(operators || {}).forEach(([op, val]) => {
+
+        for (const [field, operators] of Object.entries(filters || {})) {
+            if (operators === undefined || operators === null) continue
+
+            // Case 1: primitive -> default to eq
+            if (typeof operators !== 'object' || Array.isArray(operators)) {
+                const val = operators
+                if (typeof val === 'string' && val.trim() === '') continue
+                result[`${field}`] = val
+                continue
+            }
+
+            // Case 2: operator object -> { like: 'foo', gte: 2025, ... }
+            for (const [op, val] of Object.entries(operators)) {
+                if (val === undefined || val === null) continue
+                if (typeof val === 'string' && val.trim() === '') continue
                 result[`${field}[${op}]`] = val
-            })
-        })
+            }
+        }
+
         return result
     }
 

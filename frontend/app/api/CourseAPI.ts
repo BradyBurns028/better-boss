@@ -1,5 +1,4 @@
 import {BaseApi} from "~/api/BaseAPI";
-import {apiService} from '~/services/ApiService'
 
 export type Course = {
     id: number

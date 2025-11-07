@@ -20,15 +20,10 @@ class CourseResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'credits' => $this->credits,
-            'department_id' => $this->department_id,
-            'prerequisite_id' => $this->prerequisite_id,
-
             'department' => DepartmentResource::make($this->whenLoaded('department')),
             'prerequisite' => CourseResource::make($this->whenLoaded('prerequisite')),
             'dependents' => CourseResource::collection($this->whenLoaded('dependents')),
             'sections' => CourseSectionResource::collection($this->whenLoaded('sections')),
-            'degreeRequirements' => DegreeProgramResource::collection($this->whenLoaded('degreeRequirements')),
-            'plans' => PlanOfStudyResource::collection($this->whenLoaded('plans')),
         ];
     }
 }

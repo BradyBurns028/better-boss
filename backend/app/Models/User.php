@@ -39,6 +39,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property Collection|Organization[] $organizations
  * @property Collection|Student[] $students
  * @property Collection|Faculty[] $faculties
+ * @property Attribute $organization
  *
  * @package App\Models
  */
