@@ -94,6 +94,6 @@ class CourseSection extends Model {
             'enrollments',
             'course_section_id',
             'student_id'
-        )->withTimestamps();
+        )->withPivot('grade');
     }
 }

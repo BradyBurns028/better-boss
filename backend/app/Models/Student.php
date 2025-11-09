@@ -62,7 +62,7 @@ class Student extends Model {
             'enrollments',
             'student_id',
             'course_section_id'
-        )->withTimestamps();
+        )->withPivot('grade');
     }
 
     public function organization(): Attribute {

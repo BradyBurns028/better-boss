@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('course_section_id')->constrained();
             $table->foreignId('student_id')->constrained('students');
             $table->primary(['course_section_id', 'student_id']);
+            $table->string('grade')->nullable();
             $table->timestamps();
         });
     }
