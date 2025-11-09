@@ -5,7 +5,7 @@ import {userApi} from "~/api/UserAPI";
 
 type NavItem = { label: string; to: string }
 
-export default defineComponent({
+export default defineNuxtComponent({
     data() {
         return {
             authStore: useAuthStore(),

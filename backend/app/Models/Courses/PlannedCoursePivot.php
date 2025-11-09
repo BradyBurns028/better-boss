@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @package App\Models\Courses
  */
 class PlannedCoursePivot extends Model {
+    protected $table = 'planned_courses';
     public $incrementing = false;
     public $timestamps = false;
 

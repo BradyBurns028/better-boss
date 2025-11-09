@@ -55,6 +55,11 @@ export default defineNuxtComponent({
                 name: `${f.user?.first_name ?? ''} ${f.user?.last_name ?? ''}`.trim(),
             }))
         },
+        onRowClick(event: { data?: any }) {
+            const id = event?.data?.id
+            if (!id) return
+            navigateTo(`/student/courses/${id}`)
+        },
     },
     watch: {
         search() {
@@ -80,6 +85,9 @@ export default defineNuxtComponent({
             :loading="loading"
             class="w-full"
             tableStyle="table-layout: auto"
+            rowHover
+            @row-click="onRowClick"
+            :rowClass="() => 'cursor-pointer'"
         >
             <template #header>
                 <div class="flex flex-row gap-2 items-center justify-between">
