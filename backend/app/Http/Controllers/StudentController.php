@@ -120,6 +120,10 @@ class StudentController extends AbstractController
 
         $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
 
+        if($this->isSelf($student)) {
+            $student->load(['enrollments']);
+        }
+
         return $this->response(StudentResource::make($student));
 
     }

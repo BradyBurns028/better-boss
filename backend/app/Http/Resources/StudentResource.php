@@ -20,7 +20,8 @@ class StudentResource extends JsonResource
             'organization' => $this->resource->organization,
             'advisor' => FacultyResource::make($this->resource->faculty),
             'degree_program'=>$this->whenLoaded('degreeProgram'),
-            'user'=>UserResource::make($this->whenLoaded('user'))
+            'user'=>UserResource::make($this->whenLoaded('user')),
+            'enrollments' => EnrollementResource::collection($this->whenLoaded('enrollments')),
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\Enums\PermissionEnum;
+use App\Enums\PermissionEnum;
 use App\Http\Responses\ApiResponse;
 use App\Models\Courses\CourseSection;
 use Illuminate\Http\Request;
@@ -94,13 +94,19 @@ class CourseSectionController extends AbstractController
      */
     public function show(CourseSection $courseSection)
     {
-        if(!auth()->user()->can(PermissionEnum::VIEW_COURSE_SECTIONS->value)) {
+        $user=auth()->user();
+
+        if(!$user->can(PermissionEnum::VIEW_COURSE_SECTIONS->value)) {
             return $this->error(403, 'You do not have permission to view course sections.', 'forbidden');
         }
 
         $courseSection->load(['course', 'instructor', 'plans']);
 
-        return $this->response(data: CourseSectionResource::make($courseSection));
+        if($user->can(PermissionEnum::VIEW_ADVISEES->value) && $user->faculty_id === $courseSection->instructor->faculty_id) {
+            $courseSection->load(['students']);
+        }
+
+        return $this->response(CourseSectionResource::make($courseSection));
     }
 
     /**
