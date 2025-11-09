@@ -118,11 +118,7 @@ class StudentController extends AbstractController
             return $this->error(403, 'You do not have permission to view this student.', 'forbidden');
         }
 
-        $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department');
-
-        if($this->isSelf($student)) {
-            $student->load(['enrollments']);
-        }
+        $student->load('user', 'faculty', 'degreeProgram', 'degreeProgram.department', 'enrollments');
 
         return $this->response(StudentResource::make($student));
 
