@@ -34,3 +34,7 @@ Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanc
     Route::apiResource('planned_course_pivots', PlannedCoursePivotController::class);
     Route::apiResource('plans_of_study', PlanOfStudyController::class);
 });
+
+// all students in the authenticated faculty member's organization
+Route::get('organization-students', [StudentController::class, 'organizationStudents'])
+    ->middleware('auth:sanctum');

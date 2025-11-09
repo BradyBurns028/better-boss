@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Http\Filters\StudentFilter;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class StudentController extends AbstractController
 {
@@ -156,5 +158,52 @@ class StudentController extends AbstractController
         $student->delete();
 
         return $this->response(data: ['status' => 200, 'message' => 'Student deleted successfully.']);
+    }
+
+    public function organizationStudents(Request $request): Response|JsonResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        // check if user is faculty
+        $faculty = $user->faculties()->first();
+        if (!$faculty) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $department = $faculty->department;
+        $organizationId = $department->organization_id;
+
+        $query = Student::query()
+            ->whereHas('degreeProgram.department', function ($q) use ($organizationId) {
+                $q->where('organization_id', $organizationId);
+            });
+
+        // Includes
+        $allowedIncludes = ['user', 'faculty', 'degreeProgram', 'degreeProgram.department'];
+        $includes = array_filter(explode(',', (string) $request->query('include', '')));
+        $includes = array_values(array_intersect($allowedIncludes, $includes));
+        if (!empty($includes)) {
+            $query->with($includes);
+        }
+
+        (new StudentFilter())->apply($request, $query);
+
+        // Pagination
+        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+        $paginator = $query->paginate($perPage)->appends($request->query());
+
+        $data = StudentResource::collection($paginator->items());
+        $meta = [
+            'page' => $paginator->currentPage(),
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'current_page' => $paginator->currentPage(),
+        ];
+
+        return $this->response($data, $meta);
     }
 }
