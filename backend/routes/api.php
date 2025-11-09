@@ -31,6 +31,5 @@ Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanc
     Route::apiResource('admins', AdminController::class);
     Route::apiResource('courses', CourseController::class);
     Route::apiResource('course_sections', CourseSectionController::class);
-    Route::apiResource('planned_course_pivots', PlannedCoursePivotController::class);
     Route::apiResource('plans_of_study', PlanOfStudyController::class);
 });
