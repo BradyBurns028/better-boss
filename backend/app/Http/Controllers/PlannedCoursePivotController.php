@@ -21,19 +21,6 @@ class PlannedCoursePivotController extends AbstractController
         // Filters
         (new PlannedCoursePivotFilter())->apply($request, $query);
 
-        // Sorting
-        $allowedSorts = ['plan_of_study_id', 'course_id', 'course_section_id', 'year', 'term', 'status'];
-        $sort = (string) $request->query('sort', 'year');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'year';
-        }
-        $query->orderBy($sort, $direction);
-
         // Pagination
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
         $paginator = $query->paginate($perPage)->appends($request->query());

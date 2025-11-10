@@ -44,19 +44,6 @@ class StudentController extends AbstractController
         // Filters
         (new StudentFilter())->apply($request, $query);
 
-        // Sorting
-        $allowedSorts = ['id', 'degree_program', 'faculty_id', 'created_at'];
-        $sort = (string) $request->query('sort', 'id');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'id';
-        }
-        $query->orderBy($sort, $direction);
-
         // Pagination
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
         $paginator = $query->paginate($perPage)->appends($request->query());
