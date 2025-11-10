@@ -3,6 +3,7 @@ import {BaseApi} from "~/api/BaseAPI";
 export type Course = {
     id: number
     name: string
+    course_code: string
 }
 
 export class CourseApi extends BaseApi<Course, {}> {

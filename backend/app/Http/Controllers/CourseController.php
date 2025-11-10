@@ -96,9 +96,17 @@ class CourseController extends AbstractController {
             return $this->error(403, 'You do not have permission to view courses.', 'forbidden');
         }
 
-        $course->load(['department', 'prerequisite', 'dependents', 'sections', 'degreeRequirements', 'plans']);
+        $course->load([
+            'department',
+            'prerequisite',
+            'dependents',
+            'sections',
+            'sections.instructor',
+            'degreeRequirements',
+            'plans'
+        ]);
 
-        return $this->response(data: CourseResource::make($course));
+        return $this->response(CourseResource::make($course));
     }
 
     /**

@@ -9,7 +9,7 @@ use App\Http\Resources\PlanOfStudyResource;
 use App\Http\Requests\StorePlanOfStudyRequest;
 use App\Http\Requests\UpdatePlanOfStudyRequest;
 use App\Http\Filters\PlanOfStudyFilter;
-use app\Enums\PermissionEnum;
+use App\Enums\PermissionEnum;
 
 class PlanOfStudyController extends AbstractController
 {
@@ -30,7 +30,7 @@ class PlanOfStudyController extends AbstractController
             });
         }
 
-        if(!$user->can(PermissionEnum::VIEW_PLANS_OF_STUDY->value)) {
+        if(!$user->can('index_plans_of_study')) {
             return $this->error(403, 'You do not have permission to view plans of study.', 'forbidden');
         }
 
