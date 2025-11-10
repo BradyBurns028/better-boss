@@ -16,7 +16,7 @@ class DegreeProgramResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->whenLoaded('name'),
+            'name' => $this->name,
 
             'department' => DepartmentResource::make($this->whenLoaded('department')),
             'program_chair' => FacultyResource::make($this->whenLoaded('programChair')),

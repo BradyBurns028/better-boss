@@ -25,12 +25,10 @@ class DegreeProgramController extends AbstractController
         $query = DegreeProgram::query();
 
         // Includes
-        $allowedIncludes = ['department', 'programChair', 'students'];
+        $allowedIncludes = ['department', 'programChair'];
         $includes = array_filter(explode(',', (string) $request->query('include', '')));
         $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
+        $query->with($allowedIncludes);
 
         // Filters via DegreeProgramFilter
         (new DegreeProgramFilter())->apply($request, $query);
