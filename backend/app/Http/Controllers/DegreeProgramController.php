@@ -80,7 +80,7 @@ class DegreeProgramController extends AbstractController
             return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
         }
 
-        $degreeProgram->load(['department', 'programChair', 'students']);
+        $degreeProgram->load(['department', 'programChair', 'courses']);
 
         return $this->response(data: DegreeProgramResource::make($degreeProgram));
     }
