@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PermissionEnum;
+use App\Enums\UserType;
 use App\Models\Courses\Course;
 use App\Models\Organization;
 use App\Models\User;
@@ -40,7 +41,7 @@ class CourseController extends AbstractController {
             ? Course::forOrganization($orgId)
             : Course::query();
 
-        $query->with(['department', 'prerequisite', 'dependents', 'sections', 'plans']);
+        $query->with(['department', 'prerequisite', 'dependents', 'sections']);
 
         $this->filter->apply($request, $query);
 
@@ -93,18 +94,30 @@ class CourseController extends AbstractController {
         $user = auth()->user();
 
         if(!$user->can(PermissionEnum::VIEW_COURSES->value)){
-            return $this->error(403, 'You do not have permission to view courses.', 'forbidden');
+            return $this->error(
+                403,
+                'You do not have permission to view courses.',
+                'forbidden'
+            );
         }
 
-        $course->load([
+        $relations = [
             'department',
             'prerequisite',
             'dependents',
             'sections',
             'sections.instructor',
             'degreeRequirements',
-            'plans'
-        ]);
+        ];
+
+        if ($user->user_type === UserType::STUDENT) {
+            $studentId = $user->students()->value('id');
+            if ($studentId) {
+                $relations['plans'] = fn ($q) => $q->where('student_id', $studentId);
+            }
+        }
+
+        $course->load($relations);
 
         return $this->response(CourseResource::make($course));
     }

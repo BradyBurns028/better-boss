@@ -111,8 +111,7 @@ class Course extends Model {
             'planned_courses',
             'course_id',
             'plan_of_study_id'
-        )->using(PlannedCoursePivot::class)
-            ->withPivot(['year', 'term', 'status', 'course_section_id']);
+        )->withPivot(['year', 'term', 'status', 'course_section_id']);
     }
 
     /**
