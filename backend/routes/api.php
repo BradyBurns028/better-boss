@@ -28,6 +28,7 @@ Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanc
     Route::apiResource('faculties', FacultyController::class);
     Route::apiResource('departments', DepartmentController::class);
     Route::apiResource('degree_programs', DegreeProgramController::class);
+    Route::apiResource('planned_course_pivots', PlannedCoursePivotController::class);
     Route::apiResource('admins', AdminController::class);
     Route::apiResource('courses', CourseController::class);
     Route::get('courses-simple', [CourseController::class, 'simple']);
