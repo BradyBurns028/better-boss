@@ -5,7 +5,5 @@ definePageMeta({
 </script>
 
 <template>
-  <main class="p-6 text-center text-2xl">
-    place holder for help page
-  </main>
+  <img src="/boss.png" class="w-screen h-screen object-cover mt-5" />
 </template>
