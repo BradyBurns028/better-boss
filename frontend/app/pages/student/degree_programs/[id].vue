@@ -8,7 +8,6 @@ export default defineComponent({
       loading: true,
       activeDegreeProgramId: null as unknown as number,
       activeDegreeProgram: [],
-      search: '',
     }
   },
   setup() {
@@ -33,6 +32,11 @@ export default defineComponent({
       }
 
       this.loading = false;
+    },
+    onRowClick(event: { data?: any }) {
+      const id = event?.data?.course?.id
+      if (!id) return
+      navigateTo(`/student/courses/${id}`)
     },
   }
 })
@@ -60,18 +64,13 @@ export default defineComponent({
     :loading="loading"
     class="w-full mt-4 px-4"
     tableStyle="table-layout: auto"
+    rowHover
+    @row-click="onRowClick"
+    :rowClass="() => 'cursor-pointer'"
   >
     <template #header>
       <div class="flex flex-row gap-2 items-center justify-between">
         <h4 class="m-0">Requirements</h4>
-        <div class="flex flex-row gap-2 items-center">
-          <IconField>
-            <InputIcon>
-              <i class="pi pi-search" />
-            </InputIcon>
-            <InputText size="small" v-model="search" placeholder="Search..." />
-          </IconField>
-        </div>
       </div>
     </template>
     <Column
