@@ -29,7 +29,7 @@ export default defineNuxtComponent({
         params['matches[like]'] = needle
       }
 
-      this.degree_program = await degreeProgramApi.list(1, 1000, params)
+      this.degreePrograms = await degreeProgramApi.list(1, 1000, params)
       this.loading = false;
     },
     onRowClick(event: { data?: any }) {
@@ -59,7 +59,7 @@ export default defineNuxtComponent({
     >
       <template #header>
         <div class="flex flex-row gap-2 items-center justify-between">
-          <h4 class="m-0">Courses</h4>
+          <h4 class="m-0">Degree Programs</h4>
           <div class="flex flex-row gap-2 items-center">
             <IconField>
               <InputIcon>
@@ -78,7 +78,7 @@ export default defineNuxtComponent({
         sortable
       />
       <Column
-        field="department"
+        field="department.name"
         header="Department"
         header-class="whitespace-nowrap"
         body-class="whitespace-nowrap"
@@ -90,7 +90,14 @@ export default defineNuxtComponent({
         header-class="whitespace-nowrap"
         body-class="whitespace-nowrap"
         sortable
-      />
+      >
+        <template #body="{ data }">
+            {{ data?.program_chair?.user
+            ? `${data.program_chair.user.first_name} ${data.program_chair.user.last_name}`
+              : '-'
+            }}
+        </template>
+      </Column>
     </DataTable>
   </div>
 </template>
