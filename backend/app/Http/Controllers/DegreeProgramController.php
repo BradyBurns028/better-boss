@@ -25,12 +25,10 @@ class DegreeProgramController extends AbstractController
         $query = DegreeProgram::query();
 
         // Includes
-        $allowedIncludes = ['department', 'programChair', 'students'];
+        $allowedIncludes = ['department', 'programChair'];
         $includes = array_filter(explode(',', (string) $request->query('include', '')));
         $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
+        $query->with($allowedIncludes);
 
         // Filters via DegreeProgramFilter
         (new DegreeProgramFilter())->apply($request, $query);
@@ -80,7 +78,7 @@ class DegreeProgramController extends AbstractController
             return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
         }
 
-        $degreeProgram->load(['department', 'programChair', 'students']);
+        $degreeProgram->load(['department', 'programChair', 'courses']);
 
         return $this->response(data: DegreeProgramResource::make($degreeProgram));
     }

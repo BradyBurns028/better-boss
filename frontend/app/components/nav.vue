@@ -28,6 +28,7 @@ export default defineComponent({
                     { label: 'Courses', to: '/student/courses' },
                     { label: 'Student Records', to: '/student/records' },
                     { label: 'Help', to: '/help' },
+                    {label : 'Degree Programs', to: '/student/degree_programs'}
                 ]
             }
 

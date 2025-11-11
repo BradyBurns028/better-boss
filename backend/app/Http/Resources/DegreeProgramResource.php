@@ -15,11 +15,12 @@ class DegreeProgramResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'name' => $this->whenLoaded('name'),
+            'id' => $this->id,
+            'name' => $this->name,
 
             'department' => DepartmentResource::make($this->whenLoaded('department')),
             'program_chair' => FacultyResource::make($this->whenLoaded('programChair')),
-            'students' => StudentResource::collection($this->students ?? collect()),
+            'requirements' => DegreeRequirementResource::collection($this->whenLoaded('courses')),
         ];
     }
 }
