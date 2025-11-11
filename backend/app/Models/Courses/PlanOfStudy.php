@@ -67,8 +67,7 @@ class PlanOfStudy extends Model {
             'planned_courses',
             'plan_of_study_id',
             'course_id'
-        )->using(PlannedCoursePivot::class)
-            ->withPivot(['year', 'term', 'status', 'course_section_id']);
+        )->withPivot(['year', 'term', 'status', 'course_section_id']);
     }
 
     /**
@@ -84,8 +83,7 @@ class PlanOfStudy extends Model {
             'planned_courses',
             'plan_of_study_id',
             'course_section_id'
-        )->using(PlannedCoursePivot::class)
-            ->withPivot(['course_id', 'year', 'term', 'status'])
+        )->withPivot(['course_id', 'year', 'term', 'status'])
             ->wherePivotNotNull('course_section_id');
     }
 }

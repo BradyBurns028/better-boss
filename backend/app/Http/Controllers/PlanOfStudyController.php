@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserType;
 use App\Http\Responses\ApiResponse;
 use App\Models\Courses\PlanOfStudy;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\PlanOfStudyResource;
 use App\Http\Requests\StorePlanOfStudyRequest;
@@ -20,10 +22,11 @@ class PlanOfStudyController extends AbstractController
     {
         $query = PlanOfStudy::query();
 
+        /** @var User $user */
         $user = auth()->user();
 
-        if($user->user_type === 'student') {
-            $query->where('student_id', $user->student->id);
+        if($user->user_type === UserType::STUDENT) {
+            $query->where('student_id', $user->students->id);
         } else if($user->user_type === 'faculty' && $user->faculty->role_type->equals('instructor')) {
             $query->whereHas('student', function ($q) use ($user) {
                 $q->where('advisor_id', $user->faculty->id);
@@ -34,13 +37,7 @@ class PlanOfStudyController extends AbstractController
             return $this->error(403, 'You do not have permission to view plans of study.', 'forbidden');
         }
 
-        // Includes (supports nested include degreeProgram.department)
-        $allowedIncludes = ['degreeProgram', 'degreeProgram.department', 'student', 'courses', 'sections'];
-        $includes = array_filter(explode(',', (string) $request->query('include', '')));
-        $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
+        $query->with(['student', 'courses', 'sections', 'courses.sections', 'courses.plans']);
 
         // Filters
         (new PlanOfStudyFilter())->apply($request, $query);

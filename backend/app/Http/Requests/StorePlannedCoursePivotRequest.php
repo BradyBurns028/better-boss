@@ -22,7 +22,7 @@ class StorePlannedCoursePivotRequest extends FormRequest
             'course_section_id' => 'sometimes|nullable|integer|exists:course_sections,id',
             'year' => 'sometimes|nullable|integer|min:1900|max:2100',
             'term' => 'sometimes|nullable|string|max:255',
-            'status' => ['required', Rule::enum(PlannedCourseEnum::class)],
+            'status' => ['sometimes', Rule::enum(PlannedCourseEnum::class)],
         ];
     }
 

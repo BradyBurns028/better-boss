@@ -64,7 +64,20 @@ export default defineNuxtComponent({
                 term: this.planActiveTerm,
                 status: 'planned'
             });
-            console.log(plannedCourse);
+            if (plannedCourse) {
+                this.openPlanOfStudy()
+            }
+        }
+    },
+    computed: {
+        hasPlanForStudent(this: any): boolean {
+            return !!this.activeCourse?.plan
+        },
+        planOfStudyButtonLabel(this: any): string {
+            return this.hasPlanForStudent ? 'On Plan of Study' : 'Add to Plan of Study'
+        },
+        planOfStudyButtonActive(this: any): boolean {
+            return this.hasPlanForStudent
         }
     }
 })
@@ -79,7 +92,11 @@ export default defineNuxtComponent({
             <p class="text-md mb-2">Department: {{ activeCourse?.department?.name }}</p>
             <p class="text-md mb-2" v-if="activeCourse?.prerequisite">Prerequisite: {{ activeCourse?.prerequisite.course_code }}</p>
         </div>
-        <Button label="Add to Plan of Study" @click="openPlanOfStudy" />
+        <Button
+            :label="planOfStudyButtonLabel"
+            :disabled="planOfStudyButtonActive"
+            @click="openPlanOfStudy"
+        />
         <DataTable
             :value="activeCourse.sections"
         >
