@@ -12,7 +12,7 @@ export default defineNuxtComponent({
             activeTerm: null as unknown as number,
             activeYear: null as unknown as string,
             activeInstructorId: null as unknown as number,
-            yearOptions: [2025, 2024, 2023, 2022, 2021, 2020],
+            yearOptions: [2030, 2029, 2028, 2027, 2026, 2025, 2024, 2023, 2022],
             termOptions: ['Fall', 'Winter', 'Spring', 'Summer'],
             instructors: []
         }
