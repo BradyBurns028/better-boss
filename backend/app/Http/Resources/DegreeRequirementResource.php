@@ -5,8 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PlanOfStudyResource extends JsonResource
-{
+class DegreeRequirementResource extends JsonResource{
     /**
      * Transform the resource into an array.
      *
@@ -15,8 +14,9 @@ class PlanOfStudyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'courses' => CourseResource::collection($this->whenLoaded('courses')),
+            'course' => CourseResource::make($this),
+            'minimum_grade' => $this->pivot->minimum_grade,
+            'course_set' => $this->pivot->course_set,
         ];
     }
 }

@@ -8,6 +8,7 @@ namespace App\Models;
 
 use App\Models\Courses\Course;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +29,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Department $department
  * @property Faculty $faculty
  * @property Collection|Student[] $students
- *
+ * @method static Builder|Course code(string $code)
+ * @method static Builder|Course forOrganization(int $orgId)
+ * @method static create(array $array)
  * @package App\Models
  */
 class DegreeProgram extends Model {
@@ -68,5 +71,9 @@ class DegreeProgram extends Model {
             'degree_program_id',
             'course_id'
         )->withPivot(['course_set', 'minimum_grade']);
+    }
+
+    public function scopeForOrganization(Builder $query, int $orgId): Builder {
+        return $query->whereHas('department', fn ($q) => $q->where('organization_id', $orgId));
     }
 }
