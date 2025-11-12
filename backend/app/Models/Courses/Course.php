@@ -4,6 +4,7 @@ namespace App\Models\Courses;
 
 use App\Models\DegreeProgram;
 use App\Models\Department;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -41,7 +42,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Course extends Model {
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'course_code',

@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->string('course_code');
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('credits');
             $table->foreignId('department_id')->constrained('departments');
             $table->foreignId('prerequisite_id')->nullable()->constrained('courses');
+            $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('course_sections', function (Blueprint $table) {
