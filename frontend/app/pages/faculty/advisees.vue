@@ -14,7 +14,7 @@ export default defineNuxtComponent ({
             // enroll dialog state
             showEnrollDialog: false as boolean,
             enrolling: false as boolean,
-            yearOptions: [2025, 2024, 2023, 2022, 2021, 2020],
+            yearOptions: [2028, 2027, 2026, 2025, 2024, 2023, 2022, 2021, 2020],
             termOptions: ['Fall', 'Winter', 'Spring', 'Summer'],
             selectedYear: null as number | null,
             selectedTerm: '' as string,
@@ -54,13 +54,6 @@ export default defineNuxtComponent ({
                 },
                 credentials: 'include',
                 headers
-            })
-
-            useNuxtApp().$toast.add({
-                severity: 'success',
-                summary: 'Enrollments attempted',
-                detail: `Processed ${summary.students_processed} students, ${summary.enrollments_created} enrollments created.`,
-                life: 4000
             })
 
             // close dialog and optionally refresh table
