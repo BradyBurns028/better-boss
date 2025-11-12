@@ -37,7 +37,7 @@ export default defineComponent({
                     {label: 'Dashboard', to: '/faculty'},
                     {label: 'Courses', to: '/faculty/courses'},
                     {label: 'Advisees', to: '/faculty/advisees'},
-                    {label: 'Gradebook', to: '/faculty/gradebook'},
+                    //{label: 'Gradebook', to: '/faculty/gradebook'},
                     {label: 'Help', to: '/help'},
                 ]
             }
@@ -46,7 +46,7 @@ export default defineComponent({
                 return [
                     {label: 'Dashboard', to: '/faculty'},
                     {label: 'Courses', to: '/faculty/courses'},
-                    {label: 'Gradebook', to: '/faculty/gradebook'},
+                    //{label: 'Gradebook', to: '/faculty/gradebook'},
                     {label: 'Help', to: '/help'},
                 ]
             }

@@ -64,7 +64,7 @@ export default defineNuxtComponent({
         >
             <template #header>
                 <div class="flex flex-row gap-2 items-center justify-between">
-                    <h4 class="m-0">Courses</h4>
+                    <h4 class="m-0">My Courses</h4>
                 </div>
             </template>
             <Column
