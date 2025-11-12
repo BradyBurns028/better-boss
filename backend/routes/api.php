@@ -34,6 +34,7 @@ Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanc
     Route::get('courses-simple', [CourseController::class, 'simple']);
     Route::apiResource('course_sections', CourseSectionController::class);
     Route::apiResource('plans_of_study', PlanOfStudyController::class);
+    Route::post('enroll-current-term',[StudentController::class, 'enrollCurrentTerm']);
 });
 
 // all students in the authenticated faculty member's organization
