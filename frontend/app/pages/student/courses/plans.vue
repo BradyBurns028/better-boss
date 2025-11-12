@@ -50,7 +50,7 @@ export default defineNuxtComponent({
                 course_section_id: event.newData.selectedSectionId,
                 plan_of_study_id: event.newData.planId,
                 course_id: event.newData.courseId
-            })
+            }, undefined)
             await this.getPlanOfStudy()
         },
         async removeSection(this: any, event: any) {
@@ -60,7 +60,7 @@ export default defineNuxtComponent({
                 course_section_id: null,
                 plan_of_study_id: event.planId,
                 course_id: event.courseId
-            })
+            }, undefined)
             await this.getPlanOfStudy()
         },
     },
@@ -100,7 +100,7 @@ export default defineNuxtComponent({
             })
         },
     }
-});
+})
 </script>
 <template>
     <div class="p-4">

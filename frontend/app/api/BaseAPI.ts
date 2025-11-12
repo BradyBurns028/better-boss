@@ -92,10 +92,11 @@ export abstract class BaseApi<TModel, TFilter extends FilterParams<any> = {}> {
         return this.unwrap<TModel>(apiService.get(`${this.resource}/${id}`))
     }
 
-    async create(data: Partial<TModel>, msg = 'Created') {
+    async create(data: Partial<TModel>, msg: string|undefined) {
         return this.unwrap<TModel>(
             apiService.post(this.resource, data),
-            { success: `${msg} successfully`, error: `Failed to create ${msg}` }
+            msg ? { success: `${msg} successfully`, error: `Failed to create ${msg}` }
+                : undefined
         )
     }
 
