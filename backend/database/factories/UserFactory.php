@@ -28,7 +28,7 @@ class UserFactory extends Factory
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
-            'user_type' => fake()->randomElement(UserType::cases()),
+            'user_type' => null,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
@@ -43,5 +43,19 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+    public function admin(): static
+    {
+        return $this->state(fn () => ['user_type' => UserType::ADMIN]);
+    }
+
+    public function faculty(): static
+    {
+        return $this->state(fn () => ['user_type' => UserType::FACULTY]);
+    }
+
+    public function student(): static
+    {
+        return $this->state(fn () => ['user_type' => UserType::STUDENT]);
     }
 }

@@ -65,7 +65,10 @@ class CourseSeeder extends Seeder {
 
                     CourseSectionFactory::new()
                         ->forCourse($course)
-                        ->term(fake()->randomElement(['Spring','Summer','Fall']), now()->year)
+                        ->term(
+                            fake()->randomElement(['Spring','Summer','Fall','Winter']),
+                            fake()->randomElement([2026,2025,2024,2023])
+                        )
                         ->state([
                             'section_number' => $secNo,
                             'instructor_id'  => $instructorId,

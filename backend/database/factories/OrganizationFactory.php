@@ -14,7 +14,7 @@ class OrganizationFactory extends Factory {
         return [
             'name' => $this->faker->company() . ' University',
             'admin_id' => Admin::factory(),
-            'owner_id' => User::factory(),
+            'owner_id' => User::factory()->admin(),
             'address'  => $this->faker->address(),
         ];
     }
