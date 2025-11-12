@@ -86,12 +86,6 @@ export default {
     async deleteCourse(id: number) {
       try {
         await courseApi.destroy(id)
-        this.toast.add({
-          severity: 'success',
-          summary: 'Deleted',
-          detail: 'Course deleted successfully',
-          life: 3000
-        })
         await this.fetchCourses()
       } catch (error) {
         this.toast.add({
