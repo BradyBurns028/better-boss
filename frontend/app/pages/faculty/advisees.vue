@@ -55,9 +55,15 @@ export default defineNuxtComponent ({
                 credentials: 'include',
                 headers
             })
+            const detail = `Students have been enrolled for ${this.selectedTerm} ${this.selectedYear}`
+            useNuxtApp().$toast.add({
+                severity: 'success',
+                summary: 'Courses enrolled',
+                detail: detail,
+                life: 3000,
+            })
 
-            // close dialog and optionally refresh table
-            this.showEnrollDialog = false
+            this.openEnrollDialog()
         }
     },
     mounted() {
