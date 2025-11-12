@@ -65,10 +65,6 @@ export default defineNuxtComponent ({
 
             // close dialog and optionally refresh table
             this.showEnrollDialog = false
-
-            setTimeout(() => {
-                window.location.reload()
-            }, 700)
         }
     },
     mounted() {
@@ -78,11 +74,7 @@ export default defineNuxtComponent ({
 </script>
 
 <template>
-    <div class="p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold">Students</h3>
-            <Button label="Enroll Advisees" icon="pi pi-user-plus" @click="openEnrollDialog" />
-        </div>
+    <div class="p-4">
         <UiBaseDataTable
             header="Students"
             :tableValue="students"
@@ -91,6 +83,18 @@ export default defineNuxtComponent ({
             :stripedRows="true"
             dataKey="id"
         >
+            <template #header>
+                <div class="flex flex-row gap-2 items-center justify-between">
+                    <h4 class="m-0">Advisees</h4>
+                    <Button
+                        label="Enroll Advisees"
+                        icon="pi pi-user-plus"
+                        @click="openEnrollDialog"
+                        size="small"
+                    />
+                </div>
+
+            </template>
             <Column field="id" header="Student ID" />
             <Column field="user.first_name" header="First Name" />
             <Column field="user.last_name" header="Last Name" />

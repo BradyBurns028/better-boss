@@ -3,6 +3,7 @@ import {type Course, courseApi} from "~/api/CourseAPI";
 import {planOfStudyApi} from "~/api/PlanOfStudyAPI";
 import {useAuthStore} from "~/stores/auth";
 import {plannedCourseApi} from "~/api/PlannedCourseAPI";
+import {userApi} from "~/api/UserAPI";
 
 export default defineNuxtComponent({
     name: 'ViewCourse',
@@ -35,17 +36,19 @@ export default defineNuxtComponent({
         },
         async addToPlannedCourses(this: any) {
             const auth = useAuthStore()
-
+            const studentId = (await userApi.find(auth.user.id))?.student.id
+            if (!studentId) return
             const response = await planOfStudyApi.list(1, 1, {
-                student_id: { eq: useAuthStore().user.student.id }
+                student_id: { eq: studentId }
             })
+
             let planOfStudy = response[0] ?? null
 
             if (!planOfStudy) {
                 planOfStudy = await planOfStudyApi.create({
-                    student_id: auth.user.student.id,
+                    student_id: studentId,
                     degree_program_id: auth.user.student.degree_program.id
-                })
+                }, undefined)
             }
 
             if (!this.planActiveYear || this.planActiveTerm === '') {
@@ -63,8 +66,9 @@ export default defineNuxtComponent({
                 year: this.planActiveYear,
                 term: this.planActiveTerm,
                 status: 'planned'
-            });
+            }, 'Course added to plan');
             if (plannedCourse) {
+                this.getCourse()
                 this.openPlanOfStudy()
             }
         }

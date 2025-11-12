@@ -37,7 +37,7 @@ class PlanOfStudyController extends AbstractController
             return $this->error(403, 'You do not have permission to view plans of study.', 'forbidden');
         }
 
-        $query->with(['student', 'courses', 'sections', 'courses.sections', 'courses.plans']);
+        $query->with(['student', 'courses', 'sections', 'courses.sections']);
 
         // Filters
         (new PlanOfStudyFilter())->apply($request, $query);
