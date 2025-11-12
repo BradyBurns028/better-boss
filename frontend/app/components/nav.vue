@@ -24,12 +24,11 @@ export default defineComponent({
             if (role === 'student') {
                 return [
                     { label: 'Dashboard', to: '/student' },
-                    { label: 'Registration', to: '/student/registration' },
+                    { label: 'Degree Programs', to: '/student/degree_programs' },
                     { label: 'Courses', to: '/student/courses' },
                     { label: 'Student Records', to: '/student/records' },
                     { label: 'Course Plans', to: '/student/courses/plans' },
                     { label: 'Help', to: '/help' },
-                    {label : 'Degree Programs', to: '/student/degree_programs'}
                 ]
             }
 

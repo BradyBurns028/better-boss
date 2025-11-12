@@ -38,6 +38,5 @@ export default defineNuxtComponent({
     <p><strong>Advisor:</strong> {{ advisor }}</p>
     <p><strong>Degree Program:</strong> {{ degree_program }}</p>
   </div>
-  <Notifications />
 </main>
 </template>

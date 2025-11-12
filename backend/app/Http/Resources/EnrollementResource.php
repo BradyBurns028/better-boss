@@ -24,6 +24,8 @@ class EnrollementResource extends JsonResource
             $toReturn['student'] = StudentResource::make($this);
         } else if($request->routeIs('students.show')) {
             $toReturn['course_section'] = CourseSectionResource::make($this);
+            $toReturn['course'] = CourseResource::make($this->course);
+            $toReturn['instructor'] = FacultyResource::make($this->instructor);
         }
 
         return $toReturn;

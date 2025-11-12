@@ -6,6 +6,10 @@ export type Course = {
     course_code: string
 }
 
+export interface CourseSection {
+    id: number
+}
+
 export class CourseApi extends BaseApi<Course, {}> {
     constructor() {
         super('courses')
