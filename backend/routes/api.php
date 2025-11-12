@@ -31,10 +31,9 @@ Route::group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth:sanc
     Route::apiResource('planned_course_pivots', PlannedCoursePivotController::class);
     Route::apiResource('admins', AdminController::class);
     Route::apiResource('courses', CourseController::class);
-    Route::get('courses-simple', [CourseController::class, 'simple']);
     Route::apiResource('course_sections', CourseSectionController::class);
     Route::apiResource('plans_of_study', PlanOfStudyController::class);
-    Route::post('enroll-current-term',[StudentController::class, 'enrollCurrentTerm']);
+    Route::post('enroll-current-term',[FacultyController::class, 'enrollCurrentTerm']);
 });
 
 // all students in the authenticated faculty member's organization
