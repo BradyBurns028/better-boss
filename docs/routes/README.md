@@ -1,263 +1,205 @@
-# API Routes Documentation
+# API Routes and Filters
 
-This document lists all available API routes, organized by controller.  
-All controllers extend `AbstractController`, which provides a unified `response()` method for consistent API output.
+This document reflects the current API surface of the Laravel backend and documents supported query filters. All routes are served under `/api`. Unless marked public, endpoints require `auth:sanctum`.
 
----
+—
 
-## AdminController
+## Authentication
 
-**Base Route:** `/api/admins`
+- POST `/api/register` — Create a new user account.
+- POST `/api/login` — Obtain auth token (Sanctum).
+- GET `/api/me` — Return current user. (auth)
+- POST `/api/logout` — Revoke token. (auth)
 
-### POST `/api/admins`
-Create a new admin account and linked user.
+—
 
-**Validations**
-| Field | Type | Required | Notes |
-|--------|------|-----------|-------|
-| first_name | string | yes | Max 255 chars |
-| last_name | string | yes | Max 255 chars |
-| email | email | yes | Must be unique in `users` |
-| password | string | yes | Min 8 chars, must be confirmed |
+## Resources (REST)
 
-**Relationships Loaded**
-- user
+Each resource below exposes standard RESTful routes via `Route::apiResource`:
 
-### GET `/api/admins/{id}`
-Retrieve a specific admin and related user data.
+- `GET /{resource}` (index)
+- `POST /{resource}` (store)
+- `GET /{resource}/{id}` (show)
+- `PUT/PATCH /{resource}/{id}` (update)
+- `DELETE /{resource}/{id}` (destroy)
 
-### PUT/PATCH `/api/admins/{id}`
-Update the linked user’s information.
+All list endpoints support pagination via `?per_page=15` (1–100). Some endpoints support `include` to eager‑load relations, noted per resource.
 
-**Validations**
-| Field | Type | Required | Notes |
-|--------|------|-----------|-------|
-| first_name | string | optional |  |
-| last_name | string | optional |  |
-| email | email | optional | Must be unique |
-| password | string | optional | Confirmed, min 8 chars |
+### Users — `/api/users`
 
-### DELETE `/api/admins/{id}`
-Not implemented.
+- Includes: loaded by default `admins`, `students.degreeProgram.department.organization`, `faculties.department.organization`, `students.faculty.user`.
+- Filters: see Filters section: User.
 
----
 
-## UserController
+### Students — `/api/students`
 
-**Base Route:** `/api/users`
+- Includes: `include=user,faculty,degreeProgram,degreeProgram.department`.
+- Filters: see Filters section: Student.
 
-### POST `/api/users`
-Create a general user record.
 
-**Validations**
-| Field | Type | Required | Notes |
-|--------|------|-----------|-------|
-| first_name | string | yes |  |
-| last_name | string | yes |  |
-| email | email | yes | Unique |
-| password | string | yes | Min 8 chars, confirmed |
-| user_type | string | optional | Optional user classification |
+### Faculties — `/api/faculties`
 
-**Relationships Loaded**
-- admins  
-- organizations  
-- students  
-- faculties
+- Includes: `include=user,department,degreePrograms,advisees`.
+- Extra: POST `/api/enroll-current-term` — Enroll all advisees into planned sections for the current (or provided) term/year.
+- Filters: see Filters section: Faculty.
 
-### GET `/api/users/{id}`
-Retrieve a user with all related entities.
 
-### PUT/PATCH `/api/users/{id}`
-Update user information.
+### Organizations — `/api/organizations`
 
-### DELETE `/api/users/{id}`
-Not implemented.
+- Includes: `include=admin,user,departments`.
+- Filters: see Filters section: Organization.
 
----
 
-## StudentController
+### Departments — `/api/departments`
 
-**Base Route:** `/api/students`
+- Includes: `include=organization,degreePrograms,departmentChair,faculty`.
+- Filters: see Filters section: Department.
 
-### POST `/api/students`
-Create a new student and linked user.
 
-**Validations**
-| Field | Type | Required | Notes |
-|--------|------|-----------|-------|
-| first_name | string | yes |  |
-| last_name | string | yes |  |
-| email | email | yes | Unique |
-| password | string | yes | Min 8 chars, confirmed |
-| degree_program | integer | yes | Must exist in `degree_programs` |
-| faculty_id | integer | optional | Must exist in `faculties` |
+### Degree Programs — `/api/degree_programs`
 
-**Relationships Loaded**
-- user  
-- degreeProgram  
-- degreeProgram.department.organization  
-- faculty
+- Includes: `department,programChair`.
+- Filters: see Filters section: Degree Program.
 
-### GET `/api/students/{id}`
-Return a student with all related data.
 
-### PUT/PATCH `/api/students/{id}`
-Update student and linked user information.
+### Courses — `/api/courses`
 
-### DELETE `/api/students/{id}`
-Not implemented.
+- Includes: always loads `department, prerequisite, dependents, sections` (no `include` param).
+- Filters: powerful course + section filters. See Filters: Course.
 
----
 
-## FacultyController
+### Course Sections — `/api/course_sections`
 
-**Base Route:** `/api/faculties`
+- Includes: `include=course,instructor,plans`.
+- Filters: see Filters section: Course Section.
 
-### POST `/api/faculties`
-Create a faculty member linked to a user.
 
-**Validations**
-| Field | Type | Required | Notes |
-|--------|------|-----------|-------|
-| first_name | string | yes |  |
-| last_name | string | yes |  |
-| email | email | yes | Unique |
-| password | string | yes | Min 8 chars, confirmed |
-| office | string | optional |  |
-| role_type | string | yes | Defines role type |
-| department_id | integer | yes | Must exist in `departments` |
+### Plans of Study — `/api/plans_of_study`
 
-**Relationships Loaded**
-- user  
-- department  
-- degreePrograms  
-- advisees
+- Includes: always loads `student, courses, sections, courses.sections`.
+- Filters: see Filters section: Plan of Study.
 
-### GET `/api/faculties/{id}`
-Retrieve faculty details with related data.
 
-### PUT/PATCH `/api/faculties/{id}`
-Update faculty and linked user information.
+### Planned Course Pivots — `/api/planned_course_pivots`
 
-### DELETE `/api/faculties/{id}`
-Not implemented.
+- Behavior: `POST` acts as upsert/delete based on payload. If an existing row is posted with both `term` and `year` omitted, it deletes that planned row; otherwise it creates/updates.
+- Filters: see Filters section: Planned Course Pivot.
 
----
 
-## OrganizationController
+—
 
-**Base Route:** `/api/organizations`
+## Additional Endpoints
 
-### POST `/api/organizations`
-Create a new organization.
+- GET `/api/organization-students` — All students within the authenticated faculty member’s organization. Supports `include` and Student filters. (auth)
 
-**Validations**
-| Field | Type | Required | Notes |
-|--------|------|-----------|-------|
-| name | string | yes |  |
-| admin_id | integer | yes | Must exist in `admins` |
-| owner_id | integer | optional | Must exist in `users` |
-| address | string | optional | Max 1000 chars |
+—
 
-**Relationships Loaded**
-- admin  
-- user  
-- departments
+## Filters
 
-### GET `/api/organizations/{id}`
-Return an organization with its admin, user, and departments.
+All filters use the pattern `?field[op]=value`. Unless noted, `op` may be one of: `eq`, `ne`, `lt`, `lte`, `gt`, `gte`, and some endpoints support `like` (case‑insensitive, `ilike`). Multiple filters can be combined.
 
-### PUT/PATCH `/api/organizations/{id}`
-Update organization details.
+Examples:
 
-### DELETE `/api/organizations/{id}`
-Not implemented.
+- `GET /api/users?first_name[like]=jo&user_type[eq]=student`
+- `GET /api/courses?credits[gte]=3&name[like]=data`
+- `GET /api/courses?matches[like]=CSC-130` (special normalized search)
 
----
 
-## DepartmentController
+### User Filters
 
-**Base Route:** `/api/departments`
+- `first_name[like]` — case‑insensitive match
+- `last_name[like]`
+- `email[like]`
+- `user_type[eq]`
 
-### POST `/api/departments`
-Create a new department under an organization.
 
-**Validations**
-| Field | Type | Required | Notes |
-|--------|------|-----------|-------|
-| name | string | yes |  |
-| organization_id | integer | yes | Must exist in `organizations` |
-| department_chair | integer | optional | Must exist in `faculties` |
+### Student Filters
 
-**Relationships Loaded**
-- organization  
-- degreePrograms  
-- faculty  
-- departmentChair
+- `degree_program[eq]`
+- `user_id[eq]`
+- `faculty_id[eq]`
 
-### GET `/api/departments/{id}`
-Retrieve a department with all related entities.
 
-### PUT/PATCH `/api/departments/{id}`
-Update department information.
+### Faculty Filters
 
-### DELETE `/api/departments/{id}`
-Not implemented.
+- `department_id[eq]`
+- `user_id[eq]`
+- `role_type[eq]`
+- `office[like]`
 
----
 
-## DegreeProgramController
+### Organization Filters
 
-**Base Route:** `/api/degree-programs`
+- `admin_id[eq]`
+- `owner_id[eq]` — pass empty value to match NULL: `owner_id=`
+- `name[like]`
 
-### POST `/api/degree-programs`
-Create a degree program under a department.
 
-**Validations**
-| Field | Type | Required | Notes |
-|--------|------|-----------|-------|
-| name | string | yes |  |
-| department_id | integer | yes | Must exist in `departments` |
-| program_chair | integer | optional | Must exist in `faculties` |
+### Department Filters
 
-**Relationships Loaded**
-- department  
-- programChair  
-- students
+- `organization_id[eq]`
+- `department_chair[eq]`
+- `name[like]`
 
-### GET `/api/degree-programs/{id}`
-Retrieve a degree program with related data.
 
-### PUT/PATCH `/api/degree-programs/{id}`
-Update degree program details.
+### Degree Program Filters
 
-### DELETE `/api/degree-programs/{id}`
-Not implemented.
+- `department_id[eq]`
+- `program_chair[eq]`
+- `name[like]`
 
----
 
-## Summary of Implemented Routes
+### Course Section Filters
 
-| Controller | Method | Route | Status |
-|-------------|---------|--------|---------|
-| AdminController | POST | /api/admins | Working |
-| AdminController | GET | /api/admins/{id} | Working |
-| AdminController | PUT/PATCH | /api/admins/{id} | Working |
-| UserController | POST | /api/users | Working |
-| UserController | GET | /api/users/{id} | Working |
-| UserController | PUT/PATCH | /api/users/{id} | Working |
-| StudentController | POST | /api/students | Working |
-| StudentController | GET | /api/students/{id} | Working |
-| StudentController | PUT/PATCH | /api/students/{id} | Working |
-| FacultyController | POST | /api/faculties | Working |
-| FacultyController | GET | /api/faculties/{id} | Working |
-| FacultyController | PUT/PATCH | /api/faculties/{id} | Working |
-| OrganizationController | POST | /api/organizations | Working |
-| OrganizationController | GET | /api/organizations/{id} | Working |
-| OrganizationController | PUT/PATCH | /api/organizations/{id} | Working |
-| DepartmentController | POST | /api/departments | Working |
-| DepartmentController | GET | /api/departments/{id} | Working |
-| DepartmentController | PUT/PATCH | /api/departments/{id} | Working |
-| DegreeProgramController | POST | /api/degree-programs | Working |
-| DegreeProgramController | GET | /api/degree-programs/{id} | Working |
-| DegreeProgramController | PUT/PATCH | /api/degree-programs/{id} | Working |
+- `course_id[eq]`
+- `section_number[eq]`
+- `term[eq]`
+- `year[eq|lt|lte|gt|gte]`
+- `instructor_id[eq]`
+
+
+### Plan of Study Filters
+
+- `degree_program_id[eq]`
+- `student_id[eq]`
+
+
+### Planned Course Pivot Filters
+
+- `plan_of_study_id[eq]`
+- `course_id[eq]`
+- `course_section_id[eq]` — pass empty to match NULL: `course_section_id=`
+- `year[eq|lt|lte|gt|gte]`
+- `term[eq]`
+- `status[eq]` — one of `planned|active|completed|dropped`
+
+
+### Course Filters (Courses + Sections)
+
+- Course fields:
+  - `department_id[eq]`
+  - `prerequisite_id[eq]` — pass empty to match NULL: `prerequisite_id=`
+  - `credits[eq|lt|lte|gt|gte]`
+  - `name[like]`
+  - `course_code[like]`
+- Special search:
+  - `matches[like]=CSC-130` — normalizes the code (e.g., `CSC130`) and matches `course_code`, `name`, or `description` case‑insensitively.
+- Section‑level constraints (apply to related sections only and return courses having matching sections):
+  - `term[eq]`
+  - `year[eq|lt|lte|gt|gte]`
+  - `instructor_id[eq]`
+
+
+—
+
+## Pagination and Includes
+
+- Pagination: `?per_page=15` (min 1, max 100). Response includes `meta` with `page`, `total`, `per_page`, `last_page`, `current_page`.
+- Includes: When supported, pass `?include=relation1,relation2`. Relations not listed under a resource’s Includes are ignored.
+
+—
+
+## Permissions
+
+Most routes enforce fine‑grained permissions (see `PermissionEnum`). If a user lacks access, API returns a 403 with an error payload from `AbstractController::error()`.
+
