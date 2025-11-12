@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class StudentFactory extends Factory {
     public function definition(): array {
         return [
-            'user_id' => User::factory()->state(['user_type' => UserType::STUDENT]),
+            'user_id' => User::factory()->student(),
             'faculty_id' => Faculty::factory(),
             'degree_program' => DegreeProgram::factory(),
         ];

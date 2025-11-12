@@ -36,18 +36,18 @@ export default defineNuxtComponent({
         },
         async addToPlannedCourses(this: any) {
             const auth = useAuthStore()
-            const studentId = (await userApi.find(auth.user.id))?.student.id
-            if (!studentId) return
+            const student = (await userApi.find(auth.user.id))?.student
+            if (!student) return
             const response = await planOfStudyApi.list(1, 1, {
-                student_id: { eq: studentId }
+                student_id: { eq: student.id }
             })
 
             let planOfStudy = response[0] ?? null
 
             if (!planOfStudy) {
                 planOfStudy = await planOfStudyApi.create({
-                    student_id: studentId,
-                    degree_program_id: auth.user.student.degree_program.id
+                    student_id: student.id,
+                    degree_program_id: student.degree_program.id
                 }, undefined)
             }
 
@@ -84,7 +84,7 @@ export default defineNuxtComponent({
             return this.hasPlanForStudent
         }
     }
-})
+});
 </script>
 <template>
     <div class="flex-1 flex flex-col px-4 pt-4 space-y-6">
