@@ -13,7 +13,7 @@ class FacultyFactory extends Factory {
 
     public function definition(): array {
         return [
-            'user_id' => User::factory(),
+            'user_id' => User::factory()->faculty(),
             'department_id' => Department::factory(),
             'office' => $this->faker->bothify('IESB ###'),
             'role_type' => $this->faker->randomElement(FacultyRoleTypeEnum::class),
