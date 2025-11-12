@@ -1,6 +1,6 @@
 <script lang="ts">
 import {useAuthStore} from "~/stores/auth";
-import {facultyApi} from "~/api/FacultyAPI";
+import {userApi} from "~/api/UserAPI";
 
 type NavItem = { label: string; to: string }
 
@@ -81,8 +81,8 @@ export default defineComponent({
 
         async getRoles(this: any) {
             if (this.authStore?.user?.user_type == 'faculty') {
-                const faculty = await facultyApi.find(this.authStore?.user?.id)
-                this.role = faculty?.role_type || ''
+                const user = await userApi.find(this.authStore?.user?.id)
+                this.role = user?.faculty?.role_type || ''
                 this.role = this.role.charAt(0).toUpperCase() + this.role.slice(1)
             } else {
                 this.role = this.authStore.user.user_type.charAt(0).toUpperCase() + this.authStore.user.user_type.slice(1)
