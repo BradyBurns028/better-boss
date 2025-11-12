@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Responses\ApiResponse;
 use App\Models\DegreeProgram;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Http\Filters\DegreeProgramFilter;
 use App\Http\Resources\DegreeProgramResource;
@@ -18,11 +19,19 @@ class DegreeProgramController extends AbstractController
      */
     public function index(Request $request)
     {
-        if(!auth()->user()->can(PermissionEnum::VIEW_DEGREE_PROGRAMS->value)){
+        $user = auth()->user();
+
+        if(!$user->can(PermissionEnum::VIEW_DEGREE_PROGRAMS->value)){
             return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
         }
 
-        $query = DegreeProgram::query();
+        /** @var Organization $organization */
+        $organization = $user->organization;
+        $orgId = $organization?->id;
+
+        $query = $orgId
+            ? DegreeProgram::forOrganization($orgId)
+            : DegreeProgram::query();
 
         // Includes
         $allowedIncludes = ['department', 'programChair'];
