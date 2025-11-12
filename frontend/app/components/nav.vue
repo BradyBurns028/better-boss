@@ -14,7 +14,7 @@ export default defineComponent({
     },
     computed: {
         navItems(this: any): NavItem[] {
-            const role = this.getRoles()
+            const role = this.role.toLowerCase()
             if (!role) {
                 return [
                     {label: 'Help', to: '/help'}
