@@ -1,7 +1,6 @@
 <script lang="ts">
 import {useAuthStore} from "~/stores/auth";
 import {facultyApi} from "~/api/FacultyAPI";
-import faculty from "~/pages/admin/faculty.vue";
 
 type NavItem = { label: string; to: string }
 
@@ -15,7 +14,7 @@ export default defineComponent({
     },
     computed: {
         navItems(this: any): NavItem[] {
-            const role = this.authStore?.user?.user_type
+            const role = this.getRoles()
             if (!role) {
                 return [
                     {label: 'Help', to: '/help'}
@@ -32,12 +31,28 @@ export default defineComponent({
                 ]
             }
 
-            if (role === 'faculty') {
+            if (role === 'instructor') {
                 return [
                     {label: 'Dashboard', to: '/faculty'},
                     {label: 'Courses', to: '/faculty/courses'},
                     {label: 'Advisees', to: '/faculty/advisees'},
                     {label: 'Gradebook', to: '/faculty/gradebook'},
+                    {label: 'Help', to: '/help'},
+                ]
+            }
+
+            if (role === 'administrator') {
+                return [
+                    {label: 'Dashboard', to: '/faculty'},
+                    {label: 'Courses', to: '/faculty/courses'},
+                    {label: 'Gradebook', to: '/faculty/gradebook'},
+                    {label: 'Help', to: '/help'},
+                ]
+            }
+
+            if (role === 'staff') {
+                return [
+                    {label: 'Dashboard', to: '/faculty'},
                     {label: 'Help', to: '/help'},
                 ]
             }
@@ -56,14 +71,6 @@ export default defineComponent({
             return [{label: 'Help', to: '/help'}]
         }
     },
-    watch: {
-        'authStore.user': {
-            immediate: true,
-            handler() {
-                this.getRoles()
-            }
-        }
-    },
     methods: {
         async handleLogout(this: any) {
             await this.authStore.logout()
@@ -80,6 +87,9 @@ export default defineComponent({
             }
         }
     },
+    mounted() {
+        this.getRoles()
+    }
 })
 </script>
 
