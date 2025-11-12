@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-
+use App\Traits\CheckSelfAccess;
 use App\Http\Resources\UserResource;
 use App\Models\Admin;
 use App\Enums\UserType;
@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
+    use CheckSelfAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -36,23 +38,11 @@ class UserController extends AbstractController
             'admins',
             'students.degreeProgram.department.organization',
             'faculties.department.organization',
+            'students.faculty.user',
         ]);
 
         // Filters
         (new UserFilter())->apply($request, $query);
-
-        // Sorting
-        $allowedSorts = ['id', 'last_name', 'first_name', 'email', 'created_at'];
-        $sort = (string) $request->query('sort', 'last_name');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'last_name';
-        }
-        $query->orderBy($sort, $direction);
 
         // Pagination
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
@@ -99,7 +89,9 @@ class UserController extends AbstractController
      */
     public function show(User $user)
     {
-        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)) {
+        if(!auth()->user()->can(PermissionEnum::VIEW_USERS->value)
+        && !$this->isself($user)
+        ) {
             return $this->error(403, 'You do not have permission to view users.', 'forbidden');
         }
 

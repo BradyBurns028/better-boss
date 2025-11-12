@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Responses\ApiResponse;
 use App\Models\DegreeProgram;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Http\Filters\DegreeProgramFilter;
 use App\Http\Resources\DegreeProgramResource;
@@ -18,35 +19,28 @@ class DegreeProgramController extends AbstractController
      */
     public function index(Request $request)
     {
-        if(!auth()->user()->can(PermissionEnum::VIEW_DEGREE_PROGRAMS->value)){
+        $user = auth()->user();
+
+        if(!$user->can(PermissionEnum::VIEW_DEGREE_PROGRAMS->value)){
             return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
         }
 
-        $query = DegreeProgram::query();
+        /** @var Organization $organization */
+        $organization = $user->organization;
+        $orgId = $organization?->id;
+
+        $query = $orgId
+            ? DegreeProgram::forOrganization($orgId)
+            : DegreeProgram::query();
 
         // Includes
-        $allowedIncludes = ['department', 'programChair', 'students'];
+        $allowedIncludes = ['department', 'programChair'];
         $includes = array_filter(explode(',', (string) $request->query('include', '')));
         $includes = array_values(array_intersect($allowedIncludes, $includes));
-        if (!empty($includes)) {
-            $query->with($includes);
-        }
+        $query->with($allowedIncludes);
 
         // Filters via DegreeProgramFilter
         (new DegreeProgramFilter())->apply($request, $query);
-
-        // Sorting
-        $allowedSorts = ['id', 'name', 'department_id', 'created_at'];
-        $sort = (string) $request->query('sort', 'name');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'name';
-        }
-        $query->orderBy($sort, $direction);
 
         // Pagination
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
@@ -93,7 +87,7 @@ class DegreeProgramController extends AbstractController
             return $this->error(403, 'You do not have permission to view all degree programs.', 'forbidden');
         }
 
-        $degreeProgram->load(['department', 'programChair', 'students']);
+        $degreeProgram->load(['department', 'programChair', 'courses']);
 
         return $this->response(data: DegreeProgramResource::make($degreeProgram));
     }

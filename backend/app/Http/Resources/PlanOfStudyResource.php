@@ -16,13 +16,7 @@ class PlanOfStudyResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'degree_program_id' => $this->degree_program_id,
-            'student_id' => $this->student_id,
-
-            'degreeProgram' => DegreeProgramResource::make($this->whenLoaded('degreeProgram')),
-            'student' => StudentResource::make($this->whenLoaded('student')),
             'courses' => CourseResource::collection($this->whenLoaded('courses')),
-            'sections' => CourseSectionResource::collection($this->whenLoaded('sections')),
         ];
     }
 }

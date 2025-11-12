@@ -15,13 +15,15 @@ export default defineNuxtComponent({
         }
     },
     methods: {
-      async getStudentInfo(this: any) {
-        const user = await userApi.find(this.authStore.user.id)
-        const advisorUser = await userApi.find(user.student.advisor.user_id);
-        this.advisor = `${advisorUser.first_name} ${advisorUser.last_name}`
+        async getStudentInfo(this: any) {
+            const user = await userApi.find(this.authStore.user?.id)
+            if (user) {
+                const advisorUser = user?.student?.advisor.user;
+                this.advisor = `${advisorUser?.first_name} ${advisorUser?.last_name}`
 
-        this.degree_program = user.student.degree_program.name;
-      }
+                this.degree_program = user?.student?.degree_program.name;
+            }
+        }
     },
     mounted() {
         this.getStudentInfo()
@@ -36,6 +38,5 @@ export default defineNuxtComponent({
     <p><strong>Advisor:</strong> {{ advisor }}</p>
     <p><strong>Degree Program:</strong> {{ degree_program }}</p>
   </div>
-  <Notifications />
 </main>
 </template>

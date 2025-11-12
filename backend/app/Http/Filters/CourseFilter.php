@@ -13,21 +13,26 @@ use Illuminate\Http\Request;
  * - prerequisite_id (eq, nullable supported via prerequisite_id=)
  * - credits (eq, lt, lte, gt, gte)
  * - name[like]=... (case-insensitive)
- * - search=... (matches normalized course_code like CSC-130 == csc130 and also name ILIKE) <-CURRENTLY NOT WORKING
+ * - matches=... (matches normalized course_code like CSC-130 == csc130 and also name ILIKE)
  * - term, year, instructor_id (applied through related sections)
  */
 class CourseFilter extends AbstractApiFilter {
     /** @var array<string, list<string>> */
     protected array $safeParms = [
-        'department_id'   => ['eq'],
+        'department_id' => ['eq'],
         'prerequisite_id' => ['eq'],
-        'credits'         => ['eq', 'lt', 'lte', 'gt', 'gte'],
-        'name'            => ['like'],
+        'credits' => ['eq', 'lt', 'lte', 'gt', 'gte'],
+        'name' => ['eq', 'like'],
+        'course_code' => ['eq', 'like'],
+        'matches' => ['like'],
+
+        'term' => ['eq', 'lt', 'lte', 'gt', 'gte'],
+        'year' => ['eq', 'lt', 'lte', 'gt', 'gte'],
+        'instructor_id' => ['eq'],
     ];
 
     /** @var array<string,string> */
     protected array $operatorMap = [
-        // inherit from parent and add case-insensitive like for Postgres
         'eq'  => '=',
         'lt'  => '<',
         'lte' => '<=',
@@ -45,13 +50,28 @@ class CourseFilter extends AbstractApiFilter {
      * @return Builder
      */
     public function apply(Request $request, Builder $query): Builder {
-        // Standard operators via parent transform
-        foreach ($this->transform($request) as [$column, $operator, $value]) {
-            if ($operator === 'ilike') {
-                $query->where($column, 'ilike', "%{$value}%");
+        $sectionKeys = ['term','year','instructor_id'];
+        $pairs = $this->transform($request);
+        $coursePairs = [];
+        $sectionPairs = [];
+
+        foreach ($pairs as [$column, $operator, $value]) {
+            if ($column === 'matches') {
                 continue;
             }
-            $query->where($column, $operator, $value);
+            if (\in_array($column, $sectionKeys, true)) {
+                $sectionPairs[] = [$column, $operator, $value];
+            } else {
+                $coursePairs[] = [$column, $operator, $value];
+            }
+        }
+
+        foreach ($coursePairs as [$column, $operator, $value]) {
+            if ($operator === 'ilike') {
+                $query->where($column, 'ilike', "%{$value}%");
+            } else {
+                $query->where($column, $operator, $value);
+            }
         }
 
         // Handle nullable prerequisite_id (explicit empty string -> IS NULL)
@@ -62,33 +82,33 @@ class CourseFilter extends AbstractApiFilter {
             }
         }
 
-        // Unified search across normalized course_code and name
-        if ($request->filled('search')) {
-            $search = (string) $request->query('search');
-            $normalized = $this->normalizeCourseCode($search);
+        $matchesLike = data_get($request->query(), 'matches.like');
+        if (is_string($matchesLike) && $matchesLike !== '') {
+            $needle = $matchesLike;
+            $normalized = $this->normalizeCourseCode($needle);
+            $needleILike = "%{$needle}%";
+            $normalizedLike = "%{$normalized}%";
 
-            $query->where(function (Builder $q) use ($normalized, $search) {
-                // Match normalized course_code using Postgres REGEXP_REPLACE
+            $query->where(function (Builder $q) use ($normalizedLike, $needleILike) {
+                // normalize: strip non-alphanumerics and lowercase; also handle NULLs
                 $q->whereRaw(
-                    "LOWER(regexp_replace(course_code, '[^a-z0-9]', '', 'g')) LIKE ?",
-                    ["%{$normalized}%"]
-                )
-                // Or name ILIKE
-                ->orWhere('name', 'ilike', "%{$search}%");
+                    "LOWER(regexp_replace(COALESCE(course_code, ''), '[^a-z0-9]', '', 'g')) LIKE ?",
+                    [$normalizedLike]
+                )->orWhere('course_code', 'ilike', $needleILike)
+                    ->orWhere('name', 'ilike', $needleILike)
+                    ->orWhere('description', 'ilike', $needleILike);;
             });
         }
 
-        // Section-level filters via whereHas
-        if ($request->filled('term') || $request->filled('year') || $request->filled('instructor_id')) {
-            $query->whereHas('sections', function (Builder $s) use ($request) {
-                if ($request->filled('term')) {
-                    $s->where('term', (string) $request->query('term'));
-                }
-                if ($request->filled('year')) {
-                    $s->where('year', (int) $request->query('year'));
-                }
-                if ($request->filled('instructor_id')) {
-                    $s->where('instructor_id', (int) $request->query('instructor_id'));
+        // 5) Section-level filters -> only return courses that have matching sections
+        if (!empty($sectionPairs)) {
+            $query->whereHas('sections', function (Builder $s) use ($sectionPairs) {
+                foreach ($sectionPairs as [$column, $operator, $value]) {
+                    // Casts for common types
+                    if ($column === 'year' || $column === 'instructor_id') {
+                        $value = (int) $value;
+                    }
+                    $s->where($column, $operator, $value);
                 }
             });
         }
@@ -98,6 +118,9 @@ class CourseFilter extends AbstractApiFilter {
 
     /**
      * Normalize course code input: remove non-alphanumerics and lowercase.
+     *
+     * @param string $code
+     * @return string
      */
     private function normalizeCourseCode(string $code): string {
         $clean = preg_replace('/[^a-z0-9]/i', '', $code) ?? $code;

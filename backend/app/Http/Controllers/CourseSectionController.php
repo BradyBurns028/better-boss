@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\Enums\PermissionEnum;
+use App\Enums\PermissionEnum;
 use App\Http\Responses\ApiResponse;
 use App\Models\Courses\CourseSection;
 use Illuminate\Http\Request;
@@ -34,19 +34,6 @@ class CourseSectionController extends AbstractController
 
         // Filters via CourseSectionFilter
         (new CourseSectionFilter())->apply($request, $query);
-
-        // Sorting
-        $allowedSorts = ['id', 'course_id', 'section_number', 'term', 'year', 'created_at'];
-        $sort = (string) $request->query('sort', 'year');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'year';
-        }
-        $query->orderBy($sort, $direction);
 
         // Pagination
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
@@ -94,13 +81,19 @@ class CourseSectionController extends AbstractController
      */
     public function show(CourseSection $courseSection)
     {
-        if(!auth()->user()->can(PermissionEnum::VIEW_COURSE_SECTIONS->value)) {
+        $user=auth()->user();
+
+        if(!$user->can(PermissionEnum::VIEW_COURSE_SECTIONS->value)) {
             return $this->error(403, 'You do not have permission to view course sections.', 'forbidden');
         }
 
         $courseSection->load(['course', 'instructor', 'plans']);
 
-        return $this->response(data: CourseSectionResource::make($courseSection));
+        if($user->can(PermissionEnum::VIEW_ADVISEES->value) && $user->faculty_id === $courseSection->instructor->faculty_id) {
+            $courseSection->load(['students']);
+        }
+
+        return $this->response(CourseSectionResource::make($courseSection));
     }
 
     /**

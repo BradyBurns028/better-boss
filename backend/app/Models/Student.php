@@ -6,10 +6,13 @@
 
 namespace App\Models;
 
+use App\Models\Courses\CourseSection;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Student
@@ -26,8 +29,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @package App\Models
  */
-class Student extends Model
-{
+class Student extends Model {
+    use HasFactory;
 
 	protected $fillable = [
 		'degree_program',
@@ -47,7 +50,22 @@ class Student extends Model
 		return $this->belongsTo(Faculty::class);
 	}
 
-    protected function organization(): Attribute {
+    /**
+     * Sections this student is enrolled in (via enrollments pivot).
+     *
+     * @return BelongsToMany<CourseSection>
+     */
+    public function enrollments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CourseSection::class,
+            'enrollments',
+            'student_id',
+            'course_section_id'
+        )->withPivot('grade');
+    }
+
+    public function organization(): Attribute {
         return Attribute::get(fn () =>
             $this->degreeProgram?->department?->organization
         );

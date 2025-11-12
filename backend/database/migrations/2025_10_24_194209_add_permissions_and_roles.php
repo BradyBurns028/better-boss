@@ -96,7 +96,7 @@ return new class extends Migration
 
         // Create roles and assign existing permissions
         $roles = [
-            'site_admin' => Permission::all(),
+            'admin' => Permission::all(),
             'administrator' => Permission::whereIn('name', [
                 'view_students',
                 'view_student_details',
@@ -134,7 +134,7 @@ return new class extends Migration
                 'view_departments',
                 'index_organizations'
             ])->get(),
-            'instructor' => Permission::whereIn('name', [
+            'faculty' => Permission::whereIn('name', [
                 'view_advisees',
                 'view_faculty',
                 'view_departments',
@@ -176,7 +176,7 @@ return new class extends Migration
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         Role::whereIn('name', [
-            'site_admin',
+            'admin',
             'administrator',
             'staff',
             'instructor',

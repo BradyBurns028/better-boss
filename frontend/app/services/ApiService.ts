@@ -26,6 +26,7 @@ const getAuthToken = (): string | null =>
 const getHeaders = (isFormData = false): HeadersInit => {
     const token = getAuthToken()
     return {
+        Accept: 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     }

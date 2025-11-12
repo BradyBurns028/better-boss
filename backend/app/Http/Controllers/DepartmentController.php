@@ -35,19 +35,6 @@ class DepartmentController extends AbstractController
         // Filters via DepartmentFilter
         (new DepartmentFilter())->apply($request, $query);
 
-        // Sorting
-        $allowedSorts = ['id', 'name', 'organization_id', 'created_at'];
-        $sort = (string) $request->query('sort', 'name');
-        $direction = 'asc';
-        if (str_starts_with($sort, '-')) {
-            $direction = 'desc';
-            $sort = substr($sort, 1);
-        }
-        if (!in_array($sort, $allowedSorts, true)) {
-            $sort = 'name';
-        }
-        $query->orderBy($sort, $direction);
-
         // Pagination
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
         $paginator = $query->paginate($perPage)->appends($request->query());

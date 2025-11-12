@@ -3,6 +3,7 @@
 namespace App\Models\Courses;
 
 use App\Models\Faculty;
+use App\Models\Student;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -79,5 +80,20 @@ class CourseSection extends Model {
             'plan_of_study_id'
         )->withPivot(['course_id', 'year', 'term', 'status'])
             ->wherePivotNotNull('course_section_id');
+    }
+
+    /**
+     * Students enrolled in this section (via enrollments pivot).
+     *
+     * @return BelongsToMany<Student>
+     */
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Student::class,
+            'enrollments',
+            'course_section_id',
+            'student_id'
+        )->withPivot('grade');
     }
 }

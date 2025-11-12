@@ -44,10 +44,9 @@ class OrganizationSeeder extends Seeder {
                     $count = fake()->numberBetween(1, 3);
                     for ($i = 0; $i < $count; $i++) {
                         $facultyUser = User::factory()
-                            ->state([
-                                'user_type' => UserType::FACULTY,
-                                'email_verified_at' => now(),
-                            ])->create();
+                            ->faculty()
+                            ->state(['email_verified_at' => now()])
+                            ->create();
 
                         $fac = Faculty::factory()
                             ->for($facultyUser, 'user')
@@ -126,10 +125,9 @@ class OrganizationSeeder extends Seeder {
                 $faculty = $facForDept->random();
 
                 $studentUser = User::factory()
-                    ->state([
-                        'user_type' => UserType::STUDENT,
-                        'email_verified_at' => now(),
-                    ])->create();
+                    ->student()
+                    ->state(['email_verified_at' => now()])
+                    ->create();
 
                 Student::create([
                     'degree_program' => $program->id,

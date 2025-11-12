@@ -28,6 +28,7 @@ class CourseSectionResource extends JsonResource
             'course' => CourseResource::make($this->whenLoaded('course')),
             'instructor' => FacultyResource::make($this->whenLoaded('instructor')),
             'plans' => PlanOfStudyResource::collection($this->whenLoaded('plans')),
+            'enrollments' => EnrollementResource::collection($this->whenLoaded('students'))
         ];
     }
 }

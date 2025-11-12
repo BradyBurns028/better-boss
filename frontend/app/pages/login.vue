@@ -84,6 +84,7 @@ export default defineNuxtComponent({
                         type="submit"
                         class="w-full py-2 px-4 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
                         :disabled="loading"
+                        @click="handleLogin"
                     >
                         <span v-if="!loading">Sign In</span>
                         <span v-else>Signing in…</span>

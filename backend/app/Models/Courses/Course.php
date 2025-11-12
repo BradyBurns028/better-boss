@@ -4,6 +4,7 @@ namespace App\Models\Courses;
 
 use App\Models\DegreeProgram;
 use App\Models\Department;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -34,12 +35,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Collection<int, PlanOfStudy> $plans
  *
  * @method static Builder|Course code(string $code)
+ * @method static Builder|Course forOrganization(int $orgId)
+ * @method static create(array $array)
  *
  * @package App\Models\Courses
  */
 class Course extends Model {
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'course_code',
@@ -109,8 +112,7 @@ class Course extends Model {
             'planned_courses',
             'course_id',
             'plan_of_study_id'
-        )->using(PlannedCoursePivot::class)
-            ->withPivot(['year', 'term', 'status', 'course_section_id']);
+        )->withPivot(['year', 'term', 'status', 'course_section_id']);
     }
 
     /**
@@ -124,5 +126,18 @@ class Course extends Model {
      */
     public function scopeCode(Builder $query, string $code): Builder {
         return $query->where('course_code', $code);
+    }
+
+    /**
+     * Allows the course to easily be filtered to an organization
+     *
+     * Ex: Course::forOrganization(1)
+     *
+     * @param Builder $query
+     * @param int $orgId
+     * @return Builder
+     */
+    public function scopeForOrganization(Builder $query, int $orgId): Builder {
+        return $query->whereHas('department', fn ($q) => $q->where('organization_id', $orgId));
     }
 }

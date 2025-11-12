@@ -61,16 +61,21 @@ export const useAuthStore = defineStore<'auth', AuthState, AuthGetters, AuthActi
     }),
 
     getters: {
-        isAuthenticated: (s: { token: any; user: any }) => !!s.token && !!s.user,
-        fullName: (s: { user: { first_name: any; last_name: any } }) => (s.user ? `${s.user.first_name} ${s.user.last_name}` : ''),
-        role: (s: { user: { user_type: any } }) => s.user?.user_type ?? null,
-        id: (s: { user: { id: any } }) => s.user?.id ?? null,
-        hasRole: (s: { user: { user_type: any } }) => (role: string | string[]) => {
+        isAuthenticated: (s: AuthState) => !!s.token && !!s.user,
+        fullName: (s: AuthState) => (s.user ? `${s.user.first_name} ${s.user.last_name}` : ''),
+        role: (s: AuthState) => s.user?.user_type ?? null,
+        id: (s: AuthState) => s.user?.id ?? null,
+        hasRole: (s: AuthState) => (role: string | string[]) => {
             const u = s.user?.user_type
             if (!u) return false
             return Array.isArray(role) ? role.includes(u) : u === role
         },
     },
+    //{ token: any; user: any }
+    //{ user: { first_name: any; last_name: any } }
+    //{ user: { user_type: any } }
+    //{ user: { id: any } }
+    //{ user: { user_type: any } }
 
     actions: {
         async login(this: AuthStore, payload: LoginPayload): Promise<boolean | User> {
